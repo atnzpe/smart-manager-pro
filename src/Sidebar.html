@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F3F4F6;
+    }
+
+    /* Estilos Customizados */
+    .input-field {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #D1D5DB;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      margin-bottom: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: #8B5CF6;
+      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+    }
+
+    .btn-primary {
+      background-color: #8B5CF6;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary:hover {
+      background-color: #7C3AED;
+    }
+
+    .btn-danger {
+      color: #EF4444;
+      font-size: 0.875rem;
+      margin-top: 1rem;
+      cursor: pointer;
+      text-decoration: underline;
+      width: 100%;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body class="p-2">
+
+  <div class="bg-white p-3 rounded-lg shadow-sm mb-3 sticky top-0 z-10">
+    <label class="block text-xs font-bold text-gray-500 mb-1">GERENCIAR MÓDULO:</label>
+    <select id="module-selector" onchange="loadTable()" class="w-full p-2 border rounded-md font-semibold text-gray-700 bg-gray-50 focus:ring-2 focus:ring-violet-200 outline-none">
+      <option value="SERVICOS">💆‍♀️ Serviços</option>
+      <option value="PRODUTOS">🛍️ Produtos</option>
+      <option value="PEDIDOS">📦 Pedidos (KDS)</option>
+      <option value="AGENDAMENTOS">📅 Agendamentos</option>
+      <option value="TAXAS_ENTREGA">🛵 Taxas de Entrega</option>
+      <option value="ENTREGADORES">👷 Entregadores</option>
+      <option value="USUARIOS">🔐 Usuários (Acesso)</option>
+      <option value="FORMAS_PAGAMENTO">💳 Pagamentos</option>
+      <option value="INSUMOS">🧪 Insumos</option>
+      <option value="CLIENTES">👥 Clientes</option>
+      <option value="CONFIG">⚙️ Configurações</option>
+    </select>
+  </div>
+
+  <div id="view-list" class="space-y-2 pb-20">
+    <div class="flex justify-between items-center px-1">
+      <h3 class="font-bold text-gray-700" id="list-title">Lista</h3>
+      <button onclick="openForm()" class="bg-green-500 text-white w-8 h-8 rounded-full shadow hover:bg-green-600 flex items-center justify-center transition transform active:scale-95">
+        <i class="fas fa-plus"></i>
+      </button>
+    </div>
+
+    <div id="loading" class="text-center py-4 text-gray-400 hidden"><i class="fas fa-spinner fa-spin"></i> Carregando...
+    </div>
+
+    <div id="items-container" class="space-y-2">
+    </div>
+  </div>
+
+  <div id="view-form" class="hidden fixed inset-0 bg-white z-20 flex flex-col h-screen animate-fade-in">
+    <div class="p-3 border-b flex justify-between items-center bg-gray-50">
+      <h3 class="font-bold text-gray-800" id="form-title">Editar</h3>
+      <button onclick="closeForm()" class="text-gray-500 hover:text-red-500"><i class="fas fa-times text-lg"></i></button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-4 space-y-3" id="form-fields">
+    </div>
+
+    <div id="area-ficha-tecnica" class="hidden p-4 border-t border-gray-100 bg-gray-50">
+      <h4 class="font-bold text-xs text-gray-500 mb-2 uppercase">Ficha Técnica (Receita)</h4>
+      <div id="ft-lista" class="space-y-2 mb-3"></div>
+      <div class="flex gap-2">
+        <select id="ft-select-insumo" class="flex-1 p-2 text-sm border rounded bg-white"></select>
+        <input type="number" id="ft-qtd" placeholder="Qtd" class="w-16 p-2 text-sm border rounded">
+        <button onclick="addInsumoToFicha()" class="bg-blue-500 text-white px-3 rounded hover:bg-blue-600"><i class="fas fa-plus"></i></button>
+      </div>
+    </div>
+
+    <div class="p-3 border-t bg-gray-50">
+      <button onclick="saveItem()" class="btn-primary" id="btn-save"><i class="fas fa-save mr-2"></i> Salvar</button>
+      <button onclick="deleteCurrentItem()" id="btn-delete" class="btn-danger hidden">Excluir Registro</button>
+    </div>
+  </div>
+
+  <script>
+    let currentSchema = [];
+    let currentSheet = "";
+    let editingId = null;
+    
+    // Dados Auxiliares
+    let availableInsumos = []; 
+    let fichaTecnicaTemp = [];
+
+    window.onload = () => loadTable();
+
+    // 1. CARREGAR TABELA
+    function loadTable() {
+      currentSheet = document.getElementById('module-selector').value;
+      document.getElementById('items-container').innerHTML = '';
+      document.getElementById('loading').classList.remove('hidden');
+
+      google.script.run
+        .withSuccessHandler(renderList)
+        .withFailureHandler(err => {
+            alert("Erro: " + err);
+            document.getElementById('loading').classList.add('hidden');
+        })
+        .crudGetTableData(currentSheet);
+    }
+
+    // 2. RENDERIZAR LISTA
+    function renderList(data) {
+      document.getElementById('loading').classList.add('hidden');
+      currentSchema = data.headers;
+      if (data.extraData) availableInsumos = data.extraData; // Guarda insumos se vierem
+
+      const container = document.getElementById('items-container');
+      if (!data.items || data.items.length === 0) {
+        container.innerHTML = '<div class="text-center text-sm text-gray-400 py-4">Nenhum registro encontrado.</div>';
+        return;
+      }
+
+      data.items.forEach(item => {
+        // Tenta adivinhar qual campo usar como Título principal e Subtítulo
+        let title = item.Nome || item.Email || item.Cliente_Json || item.Chave || item.ID;
+        let sub = "";
+
+        // Tratamento visual específico por tabela
+        if(currentSheet === 'USUARIOS') {
+            title = item.Email;
+            sub = `Nível: ${item.Nivel}`;
+        } else if (currentSheet === 'PEDIDOS') {
+            let cli = {nome: '?'}; try{ cli = JSON.parse(item.Cliente_Json) }catch(e){}
+            title = `#${item.ID} - ${cli.nome}`;
+            sub = `${item.Status} | R$ ${item.Total}`;
+        } else {
+            // Genérico
+            sub = item.Preco ? `R$ ${item.Preco}` : (item.Telefone || item.Categoria || '');
+        }
+
+        const el = document.createElement('div');
+        el.className = "bg-white p-3 rounded border border-gray-200 shadow-sm hover:border-violet-400 cursor-pointer transition flex justify-between items-center";
+        el.onclick = () => openForm(item);
+        
+        el.innerHTML = `
+          <div class="overflow-hidden">
+            <div class="font-bold text-gray-800 text-sm truncate">${title}</div>
+            <div class="text-xs text-gray-500 truncate">${sub}</div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-300 text-xs ml-2"></i>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    // 3. ABRIR FORMULÁRIO (Construtor Inteligente)
+    function openForm(item = null) {
+      const formContainer = document.getElementById('form-fields');
+      formContainer.innerHTML = '';
+      editingId = item ? item.ID : null;
+      fichaTecnicaTemp = []; // Reset
+
+      document.getElementById('form-title').innerText = item ? 'Editar Registro' : 'Novo Cadastro';
+      document.getElementById('btn-delete').classList.toggle('hidden', !item);
+
+      // Controle de Áreas Extras
+      const isServico = currentSheet === 'SERVICOS';
+      document.getElementById('area-ficha-tecnica').classList.toggle('hidden', !isServico);
+
+      // Se for Serviço, setup da Ficha Técnica
+      if (isServico) {
+        setupFichaTecnica(item);
+      }
+
+      // Gera Inputs
+      currentSchema.forEach(header => {
+        if (header === 'ID' || header === 'Ficha_Tecnica_Json') return; // Campos internos ignorados
+
+        const wrapper = document.createElement('div');
+        const label = document.createElement('label');
+        label.className = "block text-xs font-bold text-gray-600 mb-1 uppercase";
+        label.innerText = header.replace(/_/g, ' ');
+
+        let input;
+        const val = item ? item[header] : '';
+
+        // --- LÓGICA DE TIPOS DE CAMPO ---
+        if (header === 'Ativo') {
+          input = createSelect(['true', 'false'], ['Sim', 'Não'], val || 'true');
+        } 
+        else if (header === 'Nivel' && currentSheet === 'USUARIOS') {
+          input = createSelect(['ADMIN', 'COLABORADOR', 'ENTREGADOR'], ['Admin (Total)', 'Colaborador (Vendas)', 'Entregador (View)'], val || 'COLABORADOR');
+        }
+        else if (header === 'Senha') {
+          input = document.createElement('input');
+          input.type = 'password';
+          input.className = "input-field";
+          input.value = val;
+          input.placeholder = "******";
+        }
+        else if (header.includes('Obs') || header.includes('Json') || header.includes('Descricao')) {
+          input = document.createElement('textarea');
+          input.className = "input-field h-20";
+          input.value = val;
+        } 
+        else {
+          input = document.createElement('input');
+          input.className = "input-field";
+          input.value = val;
+          // Tipagem HTML5
+          if(header.includes('Preco') || header.includes('Custo') || header.includes('Taxa') || header.includes('Minutos') || header.includes('Estoque')) {
+              input.type = 'number';
+              input.step = "0.01";
+          }
+          if(header.includes('Data') && !header.includes('Cadastro')) input.type = 'date';
+        }
+
+        input.id = `input-${header}`;
+        wrapper.appendChild(label);
+        wrapper.appendChild(input);
+        formContainer.appendChild(wrapper);
+      });
+
+      document.getElementById('view-form').classList.remove('hidden');
+    }
+
+    // Helper para criar Selects
+    function createSelect(values, labels, selectedVal) {
+        const sel = document.createElement('select');
+        sel.className = "input-field bg-white";
+        values.forEach((v, i) => {
+            const opt = document.createElement('option');
+            opt.value = v;
+            opt.innerText = labels[i];
+            if(String(v) === String(selectedVal)) opt.selected = true;
+            sel.appendChild(opt);
+        });
+        return sel;
+    }
+
+    function closeForm() {
+      document.getElementById('view-form').classList.add('hidden');
+    }
+
+    // 4. SALVAR
+    function saveItem() {
+      const btn = document.getElementById('btn-save');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Salvando...';
+      btn.disabled = true;
+
+      let payload = { ID: editingId };
+      
+      currentSchema.forEach(header => {
+        if (header === 'ID' || header === 'Ficha_Tecnica_Json') return;
+        const el = document.getElementById(`input-${header}`);
+        if(el) payload[header] = el.value;
+      });
+
+      // Anexa Ficha Técnica se for Serviço
+      if (currentSheet === 'SERVICOS') {
+          payload.Ficha_Tecnica_Json = JSON.stringify(fichaTecnicaTemp);
+      }
+
+      google.script.run
+        .withSuccessHandler(res => {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+          closeForm();
+          loadTable();
+        })
+        .withFailureHandler(err => {
+            alert("Erro ao salvar: " + err);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        })
+        .crudSaveItem(currentSheet, payload);
+    }
+
+    // 5. EXCLUIR
+    function deleteCurrentItem() {
+      if(!editingId || !confirm("Tem certeza que deseja excluir permanentemente?")) return;
+      
+      google.script.run.withSuccessHandler(() => {
+          closeForm();
+          loadTable();
+      }).crudDeleteItem(currentSheet, editingId);
+    }
+
+    // --- LÓGICA DE FICHA TÉCNICA (Frontend) ---
+    function setupFichaTecnica(item) {
+        const select = document.getElementById('ft-select-insumo');
+        select.innerHTML = '<option value="">Selecione...</option>';
+        availableInsumos.forEach(ins => {
+            select.innerHTML += `<option value="${ins.ID}">${ins.Nome} (${ins.Unidade})</option>`;
+        });
+
+        if (item && item.Ficha_Tecnica_Json) {
+            try { fichaTecnicaTemp = JSON.parse(item.Ficha_Tecnica_Json); } catch(e){ fichaTecnicaTemp = []; }
+        } else {
+            fichaTecnicaTemp = [];
+        }
+        renderFichaTecnica();
+    }
+
+    function addInsumoToFicha() {
+        const select = document.getElementById('ft-select-insumo');
+        const qtdInput = document.getElementById('ft-qtd');
+        const id = select.value;
+        const qtd = qtdInput.value;
+        if(!id || !qtd) return;
+
+        const nomeRef = select.options[select.selectedIndex].text;
+        const existing = fichaTecnicaTemp.find(i => i.id_insumo === id);
+        
+        if(existing) existing.qtd = qtd;
+        else fichaTecnicaTemp.push({id_insumo: id, qtd: qtd, nome_ref: nomeRef});
+
+        qtdInput.value = '';
+        renderFichaTecnica();
+    }
+
+    function removeInsumo(id) {
+        fichaTecnicaTemp = fichaTecnicaTemp.filter(i => i.id_insumo !== id);
+        renderFichaTecnica();
+    }
+
+    function renderFichaTecnica() {
+        const div = document.getElementById('ft-lista');
+        div.innerHTML = '';
+        fichaTecnicaTemp.forEach(i => {
+            // Tenta recuperar nome se perdeu a ref
+            let nome = i.nome_ref;
+            if(!nome && availableInsumos.length > 0) {
+                const ins = availableInsumos.find(ai => ai.ID == i.id_insumo);
+                if(ins) nome = `${ins.Nome} (${ins.Unidade})`;
+            }
+            div.innerHTML += `
+            <div class="flex justify-between items-center bg-white p-2 border rounded text-xs">
+                <span>${nome || 'Insumo ID ' + i.id_insumo}</span>
+                <div class="flex items-center gap-2">
+                    <span class="bg-gray-100 px-2 py-1 rounded font-bold">${i.qtd}</span>
+                    <button onclick="removeInsumo('${i.id_insumo}')" class="text-red-500"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        });
+    }
+  </script>
+</body>
+
+</html>
