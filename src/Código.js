@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * 🏢 STUDIO AFROSTYLE MANAGER - V8.5 (DASHBOARD & CONFIG)
+ * 🏢 STUDIO AFROSTYLE MANAGER - V8 (DASHBOARD & CONFIG)
  * ============================================================================
  */
 
@@ -47,20 +47,32 @@ function getConf(ss, key, def) {
 }
 
 // --- NOVO: SALVAR NOME DA EMPRESA (CONFIG) ---
+// --- CORREÇÃO: SALVAR NOME DA EMPRESA (BLINDADO) ---
 function setAppName(newName) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(DB_SHEETS.CONFIG);
-  const data = sheet.getDataRange().getValues();
+
+  // Garante que lê tudo como string para comparar
+  const data = sheet.getDataRange().getDisplayValues();
   let found = false;
-  
-  for(let i=0; i<data.length; i++) {
-    if(data[i][0] === 'NOME_EMPRESA') {
-      sheet.getRange(i+1, 2).setValue(newName);
+
+  for (let i = 0; i < data.length; i++) {
+    // Compara removendo espaços e ignorando maiúsculas/minúsculas por segurança
+    if (String(data[i][0]).trim().toUpperCase() === 'NOME_EMPRESA') {
+      sheet.getRange(i + 1, 2).setValue(newName);
       found = true;
       break;
     }
   }
-  if(!found) sheet.appendRow(['NOME_EMPRESA', newName, 'Nome exibido no App']);
+
+  // Se não achou, cria uma nova linha
+  if (!found) {
+    sheet.appendRow(['NOME_EMPRESA', newName, 'Nome exibido no App']);
+  }
+
+  // Força atualização rápida do cache do Google
+  SpreadsheetApp.flush();
+
   return { success: true };
 }
 
@@ -69,7 +81,7 @@ function getDashboardMetrics() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(DB_SHEETS.FINANCEIRO);
   const appName = getConf(ss, 'NOME_EMPRESA', 'Minha Loja'); // Pega nome atual
-  
+
   if (!sheet) return { totalMonth: 0, totalToday: 0, byType: { 'Vendas': 0, 'Serviços': 0 }, appName: appName };
 
   const data = sheet.getDataRange().getValues();
@@ -81,9 +93,9 @@ function getDashboardMetrics() {
   let totalMonth = 0; let totalToday = 0; let byType = { 'Vendas': 0, 'Serviços': 0 };
 
   for (let i = 1; i < data.length; i++) {
-    const rowDate = new Date(data[i][1]); 
-    const desc = String(data[i][3]);      
-    const val = Number(data[i][4]);       
+    const rowDate = new Date(data[i][1]);
+    const desc = String(data[i][3]);
+    const val = Number(data[i][4]);
 
     if (rowDate.getMonth() === currentMonth && rowDate.getFullYear() === currentYear) {
       totalMonth += val;
@@ -166,19 +178,13 @@ function criarPedidoProduto(payload) {
       const ss = SpreadsheetApp.getActiveSpreadsheet();
       const sheet = ss.getSheetByName(DB_SHEETS.PEDIDOS);
       const id = "PED-" + Utilities.getUuid().slice(0, 6).toUpperCase();
-      const subtotal = parseMoney(payload.subtotal);
-      const taxa = parseMoney(payload.taxaEntrega);
+      const sub = parseMoney(payload.subtotal);
+      const tax = parseMoney(payload.taxaEntrega);
+      const hist = [{ status: STATUS_PEDIDO.RECEBIDO, data: new Date(), obs: "Via App" }];
 
-      // Histórico Inicial
-      const hist = [{ status: STATUS_PEDIDO.RECEBIDO, data: new Date(), obs: "Pedido Criado via App" }];
-
-      sheet.appendRow([
-        id, new Date(), JSON.stringify(payload.cliente), JSON.stringify(payload.itens),
-        subtotal, taxa, subtotal + taxa, STATUS_PEDIDO.RECEBIDO, payload.pagamento, payload.obs || "", JSON.stringify(hist)
-      ]);
+      sheet.appendRow([id, new Date(), JSON.stringify(payload.cliente), JSON.stringify(payload.itens), sub, tax, sub + tax, STATUS_PEDIDO.RECEBIDO, payload.pagamento, payload.obs || "", JSON.stringify(hist)]);
       return { success: true, id: id, whatsappLoja: payload.whatsappLoja };
-    } catch (e) { return { success: false, message: e.message }; }
-    finally { lock.releaseLock(); }
+    } catch (e) { return { success: false, message: e.message }; } finally { lock.releaseLock(); }
   }
 }
 
@@ -189,31 +195,24 @@ function criarAgendamentoServico(payload) {
       const ss = SpreadsheetApp.getActiveSpreadsheet();
       const sheet = ss.getSheetByName(DB_SHEETS.AGENDAMENTOS);
       const id = "AGD-" + Utilities.getUuid().slice(0, 6).toUpperCase();
+      const hist = [{ status: STATUS_AGENDA.PENDENTE, data: new Date(), obs: "Solicitado via App" }];
 
-      const hist = [{ status: STATUS_AGENDA.PENDENTE, data: new Date(), obs: "Solicitação via App" }];
+      // MUDANÇA: NÃO CRIA EVENTO NO CALENDAR AQUI MAIS. SÓ SALVA PENDENTE.
+      const evtId = "";
 
-      sheet.appendRow([
-        id, new Date(), payload.data, payload.horaInicio, payload.horaFim,
-        JSON.stringify(payload.cliente), JSON.stringify(payload.itens),
-        parseMoney(payload.total), STATUS_AGENDA.PENDENTE, "",
-        payload.tipoAtendimento, payload.endereco, payload.pagamento, JSON.stringify(hist)
-      ]);
+      sheet.appendRow([id, new Date(), payload.data, payload.horaInicio, payload.horaFim, JSON.stringify(payload.cliente), JSON.stringify(payload.itens), parseMoney(payload.total), STATUS_AGENDA.PENDENTE, evtId, payload.tipoAtendimento, payload.endereco, payload.pagamento, JSON.stringify(hist)]);
 
-      return { success: true, id: id };
-    } catch (e) { return { success: false, message: e.message }; }
-    finally { lock.releaseLock(); }
-  }
+      return { success: true, id: id, whatsappLoja: getConf(ss, 'WHATSAPP_LOJA', '') };
+    } catch (e) { return { success: false, message: e.message }; } finally { lock.releaseLock(); }
+  } else { return { success: false, message: "Servidor Ocupado" }; }
 }
 
 // 5. KDS PRO (DADOS COMPLETOS)
 function getKDSData() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  // Retorna TUDO (o frontend filtra)
-  const pedidos = sheetToJSON(ss.getSheetByName(DB_SHEETS.PEDIDOS));
-  const agendamentos = sheetToJSON(ss.getSheetByName(DB_SHEETS.AGENDAMENTOS));
+  const pedidos = sheetToJSON(ss.getSheetByName(DB_SHEETS.PEDIDOS)).filter(p => p.Status !== STATUS_PEDIDO.CONCLUIDO && p.Status !== STATUS_PEDIDO.CANCELADO);
+  const agendamentos = sheetToJSON(ss.getSheetByName(DB_SHEETS.AGENDAMENTOS)).filter(a => a.Status !== STATUS_AGENDA.FINALIZADO && a.Status !== STATUS_AGENDA.CANCELADO);
   const entregadores = sheetToJSON(ss.getSheetByName(DB_SHEETS.ENTREGADORES));
-
   return { pedidos, agendamentos, entregadores };
 }
 
@@ -223,85 +222,93 @@ function updateStatusKDS(type, id, newStatus, userLog) {
   if (lock.tryLock(10000)) {
     try {
       const ss = SpreadsheetApp.getActiveSpreadsheet();
-      const sheetName = type === 'PEDIDO' ? DB_SHEETS.PEDIDOS : DB_SHEETS.AGENDAMENTOS;
-      const sheet = ss.getSheetByName(sheetName);
+      const sheet = ss.getSheetByName(type === 'PEDIDO' ? DB_SHEETS.PEDIDOS : DB_SHEETS.AGENDAMENTOS);
       const data = sheet.getDataRange().getValues();
-      const headers = data[0];
-
       let rowIndex = -1;
       let rowData = null;
-      for (let i = 1; i < data.length; i++) {
-        if (String(data[i][0]) === String(id)) {
-          rowIndex = i + 1;
-          rowData = data[i];
-          break;
-        }
-      }
+      for (let i = 1; i < data.length; i++) { if (String(data[i][0]) === String(id)) { rowIndex = i + 1; rowData = data[i]; break; } }
+      if (rowIndex === -1) return { success: false, message: "ID não encontrado" };
 
-      if (rowIndex === -1) return { success: false, message: "ID não encontrado." };
-
-      // Índices dinâmicos
+      const headers = data[0];
       const statusIdx = headers.indexOf("Status");
       const histIdx = headers.indexOf("Historico_Json");
-      const eventIdx = headers.indexOf("ID_Evento_Calendar");
+      const eventIdx = headers.indexOf("ID_Evento_Calendar"); // Para salvar o ID do Google Agenda
 
-      // 1. Atualizar Histórico
-      let historico = [];
+      // Mapeia dados da linha para objeto útil
+      const map = {}; headers.forEach((h, i) => map[h] = rowData[i]);
+
+      // Log Histórico
       if (histIdx > -1) {
-        try { historico = JSON.parse(rowData[histIdx] || "[]"); } catch (e) { }
-        historico.push({
-          status: newStatus,
-          data: new Date(),
-          obs: `Alterado por ${userLog || 'Admin'}`
-        });
-        sheet.getRange(rowIndex, histIdx + 1).setValue(JSON.stringify(historico));
+        let h = []; try { h = JSON.parse(rowData[histIdx] || "[]"); } catch (e) { }
+        h.push({ status: newStatus, data: new Date(), obs: `Por ${userLog || 'Admin'}` });
+        sheet.getRange(rowIndex, histIdx + 1).setValue(JSON.stringify(h));
       }
-
-      // 2. Atualizar Status
       sheet.getRange(rowIndex, statusIdx + 1).setValue(newStatus);
 
-      // 3. Regras de Negócio
+      // === REGRA DE NEGÓCIO: CONFIRMAÇÃO DE AGENDAMENTO ===
+      let whatsappLink = null;
 
-      // Regra: Confirmar Agendamento -> Criar Calendar
       if (type === 'AGENDAMENTO' && newStatus === STATUS_AGENDA.CONFIRMADO) {
-        // Se não tiver evento ainda, cria
+        // 1. Cria evento no Google Calendar AGORA
         const currentEventId = eventIdx > -1 ? rowData[eventIdx] : "";
         if (!currentEventId) {
-          const map = {}; headers.forEach((h, i) => map[h] = rowData[i]);
-          const evtId = criarEventoCalendar(ss, map);
+          const evtId = criarEventoCalendar(ss, map); // Passa o objeto mapeado
           if (evtId && eventIdx > -1) sheet.getRange(rowIndex, eventIdx + 1).setValue(evtId);
         }
+
+        // 2. Gera Link WhatsApp para o Cliente (Confirmando)
+        try {
+          const cli = JSON.parse(map.Cliente_Json);
+          const itens = JSON.parse(map.Itens_Json);
+          const nomesServicos = itens.map(i => i.Nome).join(', ');
+          const dataFormatada = new Date(map.Data_Agendada || map.Data).toLocaleDateString('pt-BR'); // Ajuste conforme formato da data salva
+
+          const msg = `Olá ${cli.nome}! Temos ótimas notícias! ✨\n\n` +
+            `Seu agendamento foi *CONFIRMADO* com sucesso! ✅\n\n` +
+            `🗓 *Data:* ${map.Data_Agendada} às ${map.Hora_Inicio}\n` +
+            `✂️ *Serviço:* ${nomesServicos}\n` +
+            `📍 *Local:* ${map.Tipo_Atendimento === 'DOMICILIO' ? 'Em Domicílio' : 'No Studio'}\n\n` +
+            `Já estamos preparando tudo para te receber com todo carinho. Até lá! 💖`;
+
+          whatsappLink = `https://wa.me/${cli.telefone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+        } catch (e) { Logger.log("Erro montando zap: " + e); }
       }
 
-      // Regra: Baixa de Estoque/Financeiro
+      // Regra: Finalização = Baixa de Estoque + Financeiro
       if (newStatus === STATUS_PEDIDO.CONCLUIDO || newStatus === STATUS_AGENDA.FINALIZADO) {
         executarBaixaEstoqueEFinanceiro(ss, type, rowData, headers);
       }
 
-      return { success: true };
-    } catch (e) { return { success: false, message: e.message }; }
-    finally { lock.releaseLock(); }
+      return { success: true, whatsappLink: whatsappLink };
+    } catch (e) { return { success: false, message: e.message }; } finally { lock.releaseLock(); }
   }
 }
 
-function criarEventoCalendar(ss, payload) {
+function criarEventoCalendar(ss, map) {
   try {
     const calendarId = getConf(ss, 'CALENDAR_ID', 'primary');
-    const [ano, mes, dia] = safeDateStr(payload.Data_Agendada || payload.Data);
-    const [hI, mI] = payload.Hora_Inicio.split(':').map(Number);
-    const [hF, mF] = payload.Hora_Fim.split(':').map(Number);
+    // Ajuste de data: Se vier YYYY-MM-DD ou Date object
+    let ano, mes, dia;
+    if (map.Data_Agendada instanceof Date) {
+      ano = map.Data_Agendada.getFullYear(); mes = map.Data_Agendada.getMonth() + 1; dia = map.Data_Agendada.getDate();
+    } else {
+      [ano, mes, dia] = map.Data_Agendada.split('-').map(Number);
+    }
+
+    const [hI, mI] = map.Hora_Inicio.split(':').map(Number);
+    const [hF, mF] = map.Hora_Fim.split(':').map(Number);
 
     const start = new Date(ano, mes - 1, dia, hI, mI);
     const end = new Date(ano, mes - 1, dia, hF, mF);
 
-    const cli = JSON.parse(payload.Cliente_Json);
-    const itens = JSON.parse(payload.Itens_Json);
+    const cli = JSON.parse(map.Cliente_Json);
+    const itens = JSON.parse(map.Itens_Json);
 
     const calendar = CalendarApp.getCalendarById(calendarId);
     if (calendar) {
-      const event = calendar.createEvent(`💇‍♀️ ${cli.nome}`, start, end, {
+      const event = calendar.createEvent(`💇‍♀️ ${cli.nome} - AfroStyle`, start, end, {
         description: `Tel: ${cli.telefone}\nServiços: ${itens.map(i => i.Nome).join(', ')}`,
-        location: payload.Tipo_Atendimento === 'DOMICILIO' ? payload.Endereco_Domicilio : "No Studio"
+        location: map.Tipo_Atendimento === 'DOMICILIO' ? map.Endereco_Domicilio : "No Studio"
       });
       return event.getId();
     }
@@ -363,20 +370,38 @@ function executarBaixaEstoqueEFinanceiro(ss, type, rowData, headers) {
 }
 
 function getHorariosDisponiveis(dataStr, dur) {
-  // Mesma lógica de sempre
   const ss = SpreadsheetApp.getActiveSpreadsheet();
+  // Força o fuso horário de SP para evitar confusão de servidor
+  const timeZone = ss.getSpreadsheetTimeZone();
+
   const calId = getConf(ss, "CALENDAR_ID", "primary");
   const dias = getConf(ss, "DIAS_FUNCIONAMENTO", "1,2,3,4,5,6").split(',').map(Number);
-  const [ano, m, d] = dataStr.split('-').map(Number);
-  const data = new Date(ano, m - 1, d);
 
-  if (!dias.includes(data.getDay())) return [];
+  // Parse da data vinda do input (YYYY-MM-DD)
+  const [ano, mes, dia] = dataStr.split('-').map(Number);
+  const dataAlvo = new Date(ano, mes - 1, dia, 0, 0, 0);
+
+  if (!dias.includes(dataAlvo.getDay())) return [];
 
   const [hA, mA] = getConf(ss, "HORARIO_ABERTURA", "09:00").split(':').map(Number);
   const [hF, mF] = getConf(ss, "HORARIO_FECHAMENTO", "19:00").split(':').map(Number);
 
-  const ini = new Date(data); ini.setHours(hA, mA, 0);
-  const fim = new Date(data); fim.setHours(hF, mF, 0);
+  const ini = new Date(dataAlvo); ini.setHours(hA, mA, 0, 0);
+  const fim = new Date(dataAlvo); fim.setHours(hF, mF, 0, 0);
+
+  // Agora real no fuso horário da planilha
+  const agoraStr = Utilities.formatDate(new Date(), timeZone, "yyyy-MM-dd HH:mm");
+  const agora = new Date(agoraStr);
+
+  // Margem de 30min
+  const margem = new Date(agora.getTime() + (30 * 60000));
+
+  // Se a data alvo for passado (ontem), retorna vazio
+  const hojeZeroStr = Utilities.formatDate(new Date(), timeZone, "yyyy-MM-dd");
+  const hojeZero = new Date(hojeZeroStr + " 00:00:00"); // Zera hora
+
+  // Comparação de datas simples
+  if (dataAlvo.getTime() < hojeZero.getTime()) return [];
 
   let busy = [];
   try {
@@ -385,12 +410,19 @@ function getHorariosDisponiveis(dataStr, dur) {
   } catch (e) { }
 
   let slots = [];
-  const durMs = dur * 60000;
   let cur = new Date(ini);
 
-  while (cur.getTime() + durMs <= fim.getTime()) {
-    const s = cur.getTime(), e = s + durMs;
-    if (!busy.some(b => s < b.e && e > b.s)) slots.push(Utilities.formatDate(cur, Session.getScriptTimeZone(), "HH:mm"));
+  while (cur.getTime() + (dur * 60000) <= fim.getTime()) {
+    const s = cur.getTime();
+    const e = s + (dur * 60000);
+
+    // Verifica se o slot é no futuro
+    const ehFuturo = s > margem.getTime();
+    const livre = !busy.some(b => (s < b.e && e > b.s));
+
+    if (livre && ehFuturo) {
+      slots.push(Utilities.formatDate(cur, timeZone, "HH:mm"));
+    }
     cur.setMinutes(cur.getMinutes() + 30);
   }
   return slots;
@@ -425,6 +457,30 @@ function configurarPlanilha() {
 }
 
 // CRUD SideBar
-function crudGetTableData(n) { const s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(n); if (!s) return { headers: [], items: [] }; const d = s.getDataRange().getDisplayValues(); if (d.length < 2) return { headers: [], items: [] }; let e = null; if (n === DB_SHEETS.SERVICOS) { const i = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(DB_SHEETS.INSUMOS); if (i) { const id = i.getDataRange().getDisplayValues(); if (id.length > 1) e = id.slice(1).map(r => ({ ID: r[0], Nome: r[1], Unidade: r[2] })); } } const h = d[0]; const i = d.slice(1).map(r => { let o = {}; r.forEach((c, x) => o[h[x]] = c); return o; }); return { headers: h, items: i, extraData: e }; }
+// 8. CRUD ADMIN (CORREÇÃO DE TELA BRANCA APLICADA AQUI)
+function crudGetTableData(sheetName) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) return { headers: [], items: [] };
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 1) return { headers: [], items: [] };
+
+  const data = sheet.getDataRange().getDisplayValues();
+  const headers = data[0];
+  const items = lastRow < 2 ? [] : data.slice(1).map(row => {
+    let obj = {}; row.forEach((c, i) => { if (headers[i]) obj[headers[i]] = c; }); return obj;
+  });
+
+  let extraData = null;
+  if (sheetName === DB_SHEETS.SERVICOS) {
+    const si = ss.getSheetByName(DB_SHEETS.INSUMOS);
+    if (si && si.getLastRow() > 1) {
+      const id = si.getDataRange().getDisplayValues();
+      extraData = id.slice(1).map(r => ({ ID: r[0], Nome: r[1], Unidade: r[2] }));
+    }
+  }
+  return { headers: headers, items: items, extraData: extraData };
+}
 function crudSaveItem(n, o) { const s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(n); const h = s.getRange(1, 1, 1, s.getLastColumn()).getValues()[0]; if (!o.ID) o.ID = Utilities.getUuid().slice(0, 8); const d = s.getDataRange().getValues(); let idx = -1; for (let i = 1; i < d.length; i++) { if (String(d[i][0]) === String(o.ID)) { idx = i + 1; break; } } const r = h.map(k => o[k] === undefined ? "" : o[k]); if (idx > 0) s.getRange(idx, 1, 1, r.length).setValues([r]); else s.appendRow(r); return { success: true }; }
 function crudDeleteItem(n, id) { const s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(n); const d = s.getDataRange().getValues(); for (let i = 1; i < d.length; i++) { if (String(d[i][0]) === String(id)) { s.deleteRow(i + 1); return { success: true }; } } return { success: false }; }
