@@ -159,6 +159,7 @@ function getCatalogo() {
   const filterActive = (list) => list.filter(i => String(i.Ativo).toLowerCase() === 'true');
 
   return {
+    appName: getConf(ss, 'NOME_EMPRESA', 'Smart Manager'),
     produtos: filterActive(toJson(DB_SHEETS.PRODUTOS))
       .filter(p => parseMoney(p.Estoque_Atual) > 0)
       .map(p => ({ ...p, Preco: parseMoney(p.Preco) })),
@@ -483,5 +484,8 @@ function crudGetTableData(sheetName) {
   }
   return { headers: headers, items: items, extraData: extraData };
 }
-function crudSaveItem(n, o) { const s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(n); const h = s.getRange(1, 1, 1, s.getLastColumn()).getValues()[0]; if (!o.ID) o.ID = Utilities.getUuid().slice(0, 8); const d = s.getDataRange().getValues(); let idx = -1; for (let i = 1; i < d.length; i++) { if (String(d[i][0]) === String(o.ID)) { idx = i + 1; break; } } const r = h.map(k => o[k] === undefined ? "" : o[k]); if (idx > 0) s.getRange(idx, 1, 1, r.length).setValues([r]); else s.appendRow(r); return { success: true }; }
+function crudSaveItem(n, o) {
+  const s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(n); const h = s.getRange(1, 1, 1, s.getLastColumn()).getValues()[0]; if (!o.ID) o.ID = Utilities.getUuid().slice(0, 8); const d = s.getDataRange().getValues(); let idx = -1; for (let i = 1; i < d.length; i++) { if (String(d[i][0]) === String(o.ID)) { idx = i + 1; break; } } const r = h.map(k => o[k] === undefined ? "" : o[k]); if (idx > 0) s.getRange(idx, 1, 1, r.length).setValues([r]); else s.appendRow(r); return { success: true };
+}
+
 function crudDeleteItem(n, id) { const s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(n); const d = s.getDataRange().getValues(); for (let i = 1; i < d.length; i++) { if (String(d[i][0]) === String(id)) { s.deleteRow(i + 1); return { success: true }; } } return { success: false }; }

@@ -1,0 +1,118 @@
+✅
+❌
+🏗️ FASE 1: CADASTROS (Continuação)
+[ ] Cadastro de Produto (Venda Direta)
+
+Ação: Sidebar > Gestão > PRODUTOS.
+
+Input: Nome: Pomada Teste, Preço: 30.00, Estoque: 5.
+
+Validação: Item salvo e visível na lista?
+Resultado do teste [✅]
+
+📱 FASE 2: EXPERIÊNCIA DO CLIENTE (APP)
+Onde: Web App (Acesse o link do dev ou exec no navegador/celular)
+
+[✅] Teste de Bloqueio Temporal (Blindagem) 🛡️
+
+Ação: App > Agendar > Escolha Corte Teste.
+
+✅Teste 1 (Passado): Selecione a data de ONTEM. Esperado: Lista de horários vazia.
+
+✅Teste 2 (Hoje - Passado): Se agora são 14:00, procure o horário das 10:00. Esperado: Não deve aparecer.
+
+✅Teste 3 (Futuro): Selecione hoje, 2 horas pra frente. Esperado: Horário disponível.
+
+[NOVO AGENDAMENTO  ] Solicitação de Agendamento
+
+✅Ação: Selecione o horário futuro > Preencha dados > Confirmar.
+
+✅Validação 1: Alerta "Agendado com Sucesso"? SIm. Observação: A pagina deve ser recarregada após clicarmos em ok.
+
+Validação 2: Abriu WhatsApp do Cliente com o texto: "Olá! Gostaria de solicitar um agendamento..."? Não. A função abriu apenas uma mensagem escrita *NOVO AGENDAMENTO 
+
+✅Validação 3 (Calendar): Abra seu Google Calendar. NÃO deve ter evento ainda (pois está pendente).
+
+A pagina deve ser recarregada após clicarmos em ok, e confirmamos o Agendamento. 
+
+[ ✅] Pedido de Delivery
+
+Ação: Loja > Adicione 2 unidades de Pomada Teste > Checkout > Enviar.
+Observação. A pagina da taxa de entrega não esta sendo exibida. Ao escolhermos undefined o campo de "Endereço é aberto"
+
+Validação: Abriu WhatsApp com o pedido somado corretamente (R$ 60,00)?Sim este é o texto: *PEDIDO #PED-FAC351*
+  Gleyson
+  81992193220
+  Total: R$ 65.00
+  PIX
+
+Precisamos refinar a mesgem enviada que confirma a compra para algo mais acolherdor , engajador e profissional demosntrando cuidado carinho e atenção com o cliente.
+A pagina deve ser recarregada após clicarmos em ok, e confirmamos o Pedido Delivery. 
+
+👨‍🍳 FASE 3: OPERAÇÃO & KDS (Gestão)
+Onde: Web App (Acesso Admin) e Sidebar
+
+[✅ ] Segurança de Acesso
+
+Ação: Abra uma aba anônima. Copie o link do script. Tente clicar em "Gestão".
+
+Validação: O sistema bloqueou e pediu login?✅ Sim
+
+[ ✅] Confirmação de Agendamento (O Pulo do Gato) ✨
+
+Ação: Logue no KDS (admin/admin ou seu login). Localize o Corte Teste (Pendente).
+
+Execução: Mude o status para CONFIRMADO✅.
+
+Validação 1 (UX): O card mudou de cor (ficou verde/azul)? ✅ Sim, ficou azul
+
+Validação 2 (WhatsApp): O sistema abriu uma nova aba do WhatsApp com a mensagem "Olá! Seu agendamento foi CONFIRMADO"? ❌ Não. Um pop up bloqueou a mensagem devemso pedir para a mensagem abre como _blank. O numero de whtsapp não esta formado como +[cod pais][cod estado][numero telefone] isso ffaz com que mesmo liberando o bloqueador de pop up a mensgem não encontra o numeoro de destino.
+
+Validação 3 (Calendar): Olhe o Google Calendar agora. O evento apareceu? ❌ Não apareceu nenhum evento.
+
+
+
+[ ] Finalização (O Dinheiro)
+
+Ação: No KDS, mude o Pedido da Pomada para CONCLUIDO e o Agendamento para FINALIZADO.
+
+Validação:✅ Os cards foram processados e a tela atualizou/sumiu?
+
+💰 FASE 4: AUDITORIA DE DADOS (BACKEND)
+Onde: Planilhas e Dashboard
+
+[ ] Prova Real do Estoque
+
+Ação: Abra a Planilha > Aba INSUMOS.
+
+Pergunta: O Shampoo Teste caiu de 10 para 9.5?
+
+Ação: Aba PRODUTOS.
+
+Pergunta: A Pomada Teste caiu de 5 para 3 (eram 2 unidades)?
+
+[ ] Prova Real do Financeiro
+
+Ação: Abra a Sidebar > Aba Dash. Clique em 🔄.
+
+Validação:
+
+Valor Hoje: Deve ser R$ 110,00 (50 do corte + 60 das pomadas).
+
+Gráfico: Deve mostrar a divisão.
+
+
+
+Melhorias /  ajustes / correções:
+
+ -Incluir no Rodamap de desenvolvimento a tela de Registro de Compra de itens para alimentatar o Estoque de Produtos ou Insumos.
+
+- Corrigir o erro: 4105087549-mae_html_user_bin_i18n_mae_html_user__pt_br.js:325 Uncaught SyEntenda o erro
+4105087549-mae_html_user_bin_i18n_mae_html_user__pt_br.js:327 Uncaught Sy {message: "Error in protected function: Cannot read properties of null (reading 'whatsappLink')", cause: TypeError: Cannot read properties of null (reading 'whatsappLink')
+    at https://n-xbmdjctgy3xbnpl…, g: true, stack: 'TypeError: Cannot read properties of null (reading…tml_user_bin_i18n_mae_html_user__pt_br.js:221:52)'}
+Sy @ 4105087549-mae_html_user_bin_i18n_mae_html_user__pt_br.js:327
+Ry @ 4105087549-mae_html_user_bin_i18n_mae_html_user__pt_br.js:325
+c @ 4105087549-mae_html_user_bin_i18n_mae_html_user__pt_br.js:324
+a @ 4105087549-mae_html_user_bin_i18n_mae_html_user__pt_br.js:221Entenda o erro
+4105087549-mae_html_user_bin_i18n_mae_html_user__pt_br.js:327 Uncaught Sy {message: "Error in protected function: Cannot read properties of null (reading 'whatsappLink')", cause: TypeError: Cannot read properties of null (reading 'whatsappLink')
+    at https://n-xbmdjctgy3xbnpl…, g: true, stack: 'TypeError: Cannot read properties of null (reading…tml_user_bin_i18n_mae_html_user__pt_br.js:221:52)'}

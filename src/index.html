@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <base target="_top">
   <meta charset="UTF-8">
@@ -9,40 +10,100 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <script>
-    tailwind.config = { theme: { extend: { colors: { primary: '#8B5CF6', secondary: '#D946EF', dark: '#1F2937' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } };
+    tailwind.config={theme:{extend:{colors:{primary:'#8B5CF6',secondary:'#D946EF',dark:'#1F2937'},fontFamily:{sans:['Inter','sans-serif']}}}};
   </script>
   <style>
-    .loader { border-top-color: #8B5CF6; animation: spinner 1.5s linear infinite }
-    @keyframes spinner { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } }
-    .fade-in { animation: fadeIn 0.4s ease-in-out }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
-    .kds-card { transition: all 0.2s }
-    .kds-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) }
-    .badge { padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-    .status-recebido { border-left: 4px solid #F59E0B; }
-    .status-preparo { border-left: 4px solid #3B82F6; }
-    .status-saiu { border-left: 4px solid #8B5CF6; }
-    .status-confirmado { border-left: 4px solid #10B981; }
+    .loader {
+      border-top-color: #8B5CF6;
+      animation: spinner 1.5s linear infinite
+    }
+
+    @keyframes spinner {
+      0% {
+        transform: rotate(0deg)
+      }
+
+      100% {
+        transform: rotate(360deg)
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.4s ease-in-out
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .kds-card {
+      transition: all 0.2s
+    }
+
+    .kds-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1)
+    }
+
+    .badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase
+    }
+
+    .status-recebido {
+      border-left: 4px solid #F59E0B
+    }
+
+    .status-preparo {
+      border-left: 4px solid #3B82F6
+    }
+
+    .status-saiu {
+      border-left: 4px solid #8B5CF6
+    }
+
+    .status-confirmado {
+      border-left: 4px solid #10B981
+    }
   </style>
-</head>
 
 <body class="bg-gray-50 text-gray-800 font-sans min-h-screen relative pb-20 md:pb-0">
 
   <div id="view-home" class="min-h-screen flex flex-col items-center justify-center p-6 space-y-6 fade-in">
     <div class="text-center mb-8">
-      <div class="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl text-primary">
+      <div
+        class="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl text-primary">
         <i class="fas fa-store"></i>
       </div>
       <h1 id="app-title" class="text-3xl font-bold text-gray-800">...</h1>
       <p class="text-gray-500">Bem-vindo(a)</p>
     </div>
-    <div onclick="router('produtos')" class="w-full max-w-sm bg-white border-l-8 border-green-500 rounded-xl shadow-lg p-6 flex items-center justify-between hover:scale-105 transition cursor-pointer">
-        <div><h3 class="font-bold text-xl">Loja</h3><p class="text-sm text-gray-500">Compre produtos</p></div>
-        <i class="fas fa-shopping-bag text-3xl text-green-500"></i>
+    <div onclick="router('produtos')"
+      class="w-full max-w-sm bg-white border-l-8 border-green-500 rounded-xl shadow-lg p-6 flex items-center justify-between hover:scale-105 transition cursor-pointer">
+      <div>
+        <h3 class="font-bold text-xl">Loja</h3>
+        <p class="text-sm text-gray-500">Compre produtos</p>
+      </div>
+      <i class="fas fa-shopping-bag text-3xl text-green-500"></i>
     </div>
-    <div onclick="router('servicos-auth')" class="w-full max-w-sm bg-white border-l-8 border-violet-600 rounded-xl shadow-lg p-6 flex items-center justify-between hover:scale-105 transition cursor-pointer">
-        <div><h3 class="font-bold text-xl">Agendar</h3><p class="text-sm text-gray-500">Marque horário</p></div>
-        <i class="fas fa-calendar-alt text-3xl text-violet-600"></i>
+    <div onclick="router('servicos-auth')"
+      class="w-full max-w-sm bg-white border-l-8 border-violet-600 rounded-xl shadow-lg p-6 flex items-center justify-between hover:scale-105 transition cursor-pointer">
+      <div>
+        <h3 class="font-bold text-xl">Agendar</h3>
+        <p class="text-sm text-gray-500">Marque horário</p>
+      </div>
+      <i class="fas fa-calendar-alt text-3xl text-violet-600"></i>
     </div>
     <button onclick="router('admin-login')" class="mt-10 text-gray-400 text-sm hover:text-primary underline">
         <i class="fas fa-lock mr-1"></i> Admin
@@ -53,34 +114,34 @@
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-2xl font-bold"><i class="fas fa-tasks mr-2"></i> Gestão</h2>
       <div>
-          <button onclick="loadKDS()" class="bg-blue-500 text-white px-3 py-2 rounded mr-2"><i class="fas fa-sync"></i></button>
-          <button onclick="doLogout()" class="bg-gray-500 text-white px-3 py-2 rounded">Sair</button>
+        <button onclick="loadKDS()" class="bg-blue-500 text-white px-3 py-2 rounded mr-2"><i class="fas fa-sync"></i></button>
+        <button onclick="doLogout()" class="bg-gray-500 text-white px-3 py-2 rounded">Sair</button>
       </div>
     </div>
-    
+
     <div class="bg-white p-3 rounded mb-4 grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-       <input type="text" id="filter-text" placeholder="Buscar..." class="p-2 border rounded" onkeyup="applyKDSFilters()">
-       <input type="date" id="filter-date" class="p-2 border rounded" onchange="applyKDSFilters()">
-       <select id="filter-status" class="p-2 border rounded" onchange="applyKDSFilters()">
+      <input type="text" id="filter-text" placeholder="Buscar..." class="p-2 border rounded" onkeyup="applyKDSFilters()">
+      <input type="date" id="filter-date" class="p-2 border rounded" onchange="applyKDSFilters()">
+      <select id="filter-status" class="p-2 border rounded" onchange="applyKDSFilters()">
          <option value="">Status</option><option value="PENDENTE">Pendente</option><option value="CONFIRMADO">Confirmado</option><option value="FINALIZADO">Finalizado</option>
        </select>
-       <select id="filter-type" class="p-2 border rounded" onchange="applyKDSFilters()">
+      <select id="filter-type" class="p-2 border rounded" onchange="applyKDSFilters()">
          <option value="ALL">Tudo</option><option value="PEDIDO">Delivery</option><option value="AGENDAMENTO">Agenda</option>
        </select>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-          <h3 class="font-bold text-green-700 border-b-2 border-green-200 mb-2 flex justify-between">
-              <span>PEDIDOS</span><span id="count-pedidos">0</span>
-          </h3>
-          <div id="kds-pedidos" class="space-y-2">Loading...</div>
+        <h3 class="font-bold text-green-700 border-b-2 border-green-200 mb-2 flex justify-between">
+          <span>PEDIDOS</span><span id="count-pedidos">0</span>
+        </h3>
+        <div id="kds-pedidos" class="space-y-2">Loading...</div>
       </div>
       <div>
-          <h3 class="font-bold text-violet-700 border-b-2 border-violet-200 mb-2 flex justify-between">
-              <span>AGENDA</span><span id="count-agenda">0</span>
-          </h3>
-          <div id="kds-agenda" class="space-y-2">Loading...</div>
+        <h3 class="font-bold text-violet-700 border-b-2 border-violet-200 mb-2 flex justify-between">
+          <span>AGENDA</span><span id="count-agenda">0</span>
+        </h3>
+        <div id="kds-agenda" class="space-y-2">Loading...</div>
       </div>
     </div>
   </div>
@@ -88,31 +149,36 @@
   <div id="view-servicos-auth" class="hidden min-h-screen bg-white p-6 fade-in flex flex-col justify-center">
     <button onclick="router('home')" class="absolute top-6 left-6 text-gray-500"><i class="fas fa-arrow-left"></i> Voltar</button>
     <div class="max-w-sm mx-auto w-full text-center">
-        <h2 class="text-2xl font-bold mb-6">Seus Dados</h2>
-        <input id="srv-nome" type="text" placeholder="Nome" class="w-full p-3 border rounded mb-3">
-        <input id="srv-tel" type="tel" placeholder="WhatsApp" class="w-full p-3 border rounded mb-3">
-        <button onclick="goToAgenda()" class="w-full bg-primary text-white py-3 rounded font-bold">Continuar</button>
+      <h2 class="text-2xl font-bold mb-6">Seus Dados</h2>
+      <input id="srv-nome" type="text" placeholder="Nome" class="w-full p-3 border rounded mb-3">
+      <input id="srv-tel" type="tel" placeholder="WhatsApp" class="w-full p-3 border rounded mb-3">
+      <button onclick="goToAgenda()" class="w-full bg-primary text-white py-3 rounded font-bold">Continuar</button>
     </div>
   </div>
 
   <div id="view-servicos-agenda" class="hidden min-h-screen bg-gray-50 p-4 pb-24 fade-in">
     <div class="flex justify-between mb-4">
-        <button onclick="router('home')"><i class="fas fa-home"></i></button>
-        <h2 class="font-bold">Serviços</h2>
-        <div></div>
+      <button onclick="router('home')"><i class="fas fa-home"></i></button>
+      <h2 class="font-bold">Serviços</h2>
+      <div></div>
     </div>
     <div id="grid-servicos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-    <div id="bar-servicos" class="hidden fixed bottom-6 left-4 right-4 bg-primary text-white p-4 rounded-xl shadow-xl flex justify-between items-center cursor-pointer" onclick="openBookingModal()">
-        <div><p class="font-bold">Finalizar</p><p class="text-xs" id="total-tempo-serv">0 min</p></div>
-        <i class="fas fa-arrow-right bg-white text-primary p-2 rounded-full"></i>
+    <div id="bar-servicos"
+      class="hidden fixed bottom-6 left-4 right-4 bg-primary text-white p-4 rounded-xl shadow-xl flex justify-between items-center cursor-pointer"
+      onclick="openBookingModal()">
+      <div>
+        <p class="font-bold">Finalizar</p>
+        <p class="text-xs" id="total-tempo-serv">0 min</p>
+      </div>
+      <i class="fas fa-arrow-right bg-white text-primary p-2 rounded-full"></i>
     </div>
   </div>
 
   <div id="view-produtos" class="hidden min-h-screen bg-gray-50 p-4 pb-24 fade-in">
     <div class="flex justify-between mb-4">
-        <button onclick="router('home')"><i class="fas fa-arrow-left"></i></button>
-        <h2 class="font-bold">Loja</h2>
-        <div></div>
+      <button onclick="router('home')"><i class="fas fa-arrow-left"></i></button>
+      <h2 class="font-bold">Loja</h2>
+      <div></div>
     </div>
     <div id="grid-produtos" class="grid grid-cols-2 gap-3"></div>
     <button onclick="openCheckout()" id="btn-cart-prod" class="hidden fixed bottom-6 right-4 left-4 bg-green-600 text-white p-4 rounded-xl shadow-xl font-bold flex justify-between px-6">
@@ -123,315 +189,422 @@
 
   <div id="view-admin-login" class="hidden min-h-screen flex items-center justify-center bg-gray-900 p-4 fade-in">
     <div class="bg-white p-8 rounded-2xl w-full max-w-sm">
-        <h2 class="text-2xl font-bold mb-4 text-center">Admin</h2>
-        <input id="adm-user" type="text" placeholder="Email" class="w-full p-3 border rounded mb-3">
-        <input id="adm-pass" type="password" placeholder="Senha" class="w-full p-3 border rounded mb-3">
-        <button onclick="doAdminLogin()" class="w-full bg-gray-900 text-white py-3 rounded font-bold">Entrar</button>
-        <button onclick="router('home')" class="w-full text-center text-sm text-gray-400 mt-3">Cancelar</button>
+      <h2 class="text-2xl font-bold mb-4 text-center">Admin</h2>
+      <input id="adm-user" type="text" placeholder="Email" class="w-full p-3 border rounded mb-3">
+      <input id="adm-pass" type="password" placeholder="Senha" class="w-full p-3 border rounded mb-3">
+      <button onclick="doAdminLogin()" class="w-full bg-gray-900 text-white py-3 rounded font-bold">Entrar</button>
+      <button onclick="router('home')" class="w-full text-center text-sm text-gray-400 mt-3">Cancelar</button>
     </div>
   </div>
 
-  <div id="modal-checkout" class="fixed inset-0 z-50 hidden bg-black bg-opacity-60 flex items-end md:items-center justify-center">
+  <div id="modal-checkout"
+    class="fixed inset-0 z-50 hidden bg-black bg-opacity-60 flex items-end md:items-center justify-center">
     <div class="bg-white w-full md:max-w-md h-[90vh] md:h-auto rounded-t-2xl md:rounded-2xl flex flex-col p-4">
-        <div class="flex justify-between mb-4"><h3 class="font-bold">Pedido</h3><button onclick="closeCheckout()">✕</button></div>
-        <div class="flex-1 overflow-y-auto space-y-3">
-            <div id="checkout-itens" class="text-sm bg-gray-50 p-2 rounded"></div>
-            <input id="chk-nome" type="text" placeholder="Nome" class="w-full p-2 border rounded">
-            <input id="chk-tel" type="tel" placeholder="WhatsApp" class="w-full p-2 border rounded">
-            <select id="chk-regiao" onchange="calcTotal()" class="w-full p-2 border rounded"><option value="0">Retirar</option></select>
-            <div id="info-entrega" class="hidden"><input id="chk-end" type="text" placeholder="Endereço" class="w-full p-2 border rounded mt-2 bg-yellow-50"></div>
-            <select id="chk-pgto" class="w-full p-2 border rounded"><option value="">Pagamento...</option></select>
-            <div class="text-xl font-bold text-right pt-2" id="chk-total-final">R$ 0,00</div>
+      <div class="flex justify-between mb-4">
+        <h3 class="font-bold">Pedido</h3><button onclick="closeCheckout()">✕</button>
+      </div>
+      <div class="flex-1 overflow-y-auto space-y-3">
+        <div id="checkout-itens" class="text-sm bg-gray-50 p-2 rounded"></div>
+        <input id="chk-nome" type="text" placeholder="Nome" class="w-full p-2 border rounded">
+        <input id="chk-tel" type="tel" placeholder="WhatsApp" class="w-full p-2 border rounded">
+        <select id="chk-regiao" onchange="calcTotal()" class="w-full p-2 border rounded"><option value="0">Retirar</option></select>
+        <div id="info-entrega" class="hidden"><input id="chk-end" type="text" placeholder="Endereço" class="w-full p-2 border rounded mt-2 bg-yellow-50">
         </div>
-        <button onclick="enviarPedido()" class="w-full bg-green-600 text-white py-3 rounded font-bold mt-3">Enviar WhatsApp</button>
+        <select id="chk-pgto" class="w-full p-2 border rounded"><option value="">Pagamento...</option></select>
+        <div class="text-xl font-bold text-right pt-2" id="chk-total-final">R$ 0,00</div>
+      </div>
+      <button onclick="enviarPedido()" class="w-full bg-green-600 text-white py-3 rounded font-bold mt-3">Enviar WhatsApp</button>
     </div>
   </div>
 
-  <div id="modal-booking" class="fixed inset-0 z-50 hidden bg-black bg-opacity-60 flex items-end md:items-center justify-center">
+  <div id="modal-booking"
+    class="fixed inset-0 z-50 hidden bg-black bg-opacity-60 flex items-end md:items-center justify-center">
     <div class="bg-white w-full md:max-w-md h-[90vh] md:h-auto rounded-t-2xl md:rounded-2xl flex flex-col p-4">
-        <div class="flex justify-between mb-4"><h3 class="font-bold">Agendar</h3><button onclick="closeModalBooking()">✕</button></div>
-        <div class="flex-1 overflow-y-auto space-y-3">
-            <select id="sel-local" class="w-full p-2 border rounded" onchange="document.getElementById('div-end-serv').classList.toggle('hidden', this.value!=='DOMICILIO')"><option value="PRESENCIAL">No Studio</option><option value="DOMICILIO">Domicílio</option></select>
-            <div id="div-end-serv" class="hidden"><input id="cli-end-serv" type="text" placeholder="Endereço" class="w-full p-2 border rounded bg-yellow-50"></div>
-            <input type="date" id="date-picker" class="w-full p-2 border rounded" onchange="fetchSlots()">
-            <div id="slots-grid" class="grid grid-cols-4 gap-2 text-center text-xs"></div>
-            <select id="serv-pgto" class="w-full p-2 border rounded"><option value="">Pagamento...</option></select>
+      <div class="flex justify-between mb-4">
+        <h3 class="font-bold">Agendar</h3><button onclick="closeModalBooking()">✕</button>
+      </div>
+      <div class="flex-1 overflow-y-auto space-y-3">
+        <select id="sel-local" class="w-full p-2 border rounded" onchange="document.getElementById('div-end-serv').classList.toggle('hidden', this.value!=='DOMICILIO')"><option value="PRESENCIAL">No Studio</option><option value="DOMICILIO">Domicílio</option></select>
+        <div id="div-end-serv" class="hidden"><input id="cli-end-serv" type="text" placeholder="Endereço" class="w-full p-2 border rounded bg-yellow-50">
         </div>
-        <button onclick="confirmarAgendamento()" class="w-full bg-primary text-white py-3 rounded font-bold mt-3">Confirmar</button>
+        <input type="date" id="date-picker" class="w-full p-2 border rounded" onchange="fetchSlots()">
+        <div id="slots-grid" class="grid grid-cols-4 gap-2 text-center text-xs"></div>
+        <select id="serv-pgto" class="w-full p-2 border rounded"><option value="">Pagamento...</option></select>
+      </div>
+      <button onclick="confirmarAgendamento()" class="w-full bg-primary text-white py-3 rounded font-bold mt-3">Confirmar</button>
     </div>
   </div>
 
-  <div id="loading" class="fixed inset-0 bg-white bg-opacity-90 z-[60] flex flex-col items-center justify-center hidden">
-      <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-      <p class="animate-pulse">Aguarde...</p>
+  <div id="loading"
+    class="fixed inset-0 bg-white bg-opacity-90 z-[60] flex flex-col items-center justify-center hidden">
+    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+    <p class="animate-pulse">Aguarde...</p>
   </div>
 
   <script>
-    const state = { cartProd: [], cartServ: [], catalogo: {}, userServ: {}, selectedSlot: null, selectedDate: null, currentUser: sessionStorage.getItem('kds_user'), kdsData: {pedidos:[], agendamentos:[]} };
+    // Estado Global
+    const state = { cartProd: [], cartServ: [], catalogo: {}, userServ: {}, selectedSlot: null, selectedDate: null, currentUser: null, kdsData: {pedidos:[], agendamentos:[]} };
 
-    // GLOBAL FUNCTIONS (Acessíveis via onclick)
-    function router(v){
-        if(v==='kds' && !state.currentUser) { alert("Login necessário"); router('admin-login'); return; }
-        ['home','servicos-auth','servicos-agenda','produtos','admin-login','kds'].forEach(x=>document.getElementById('view-'+x)?.classList.add('hidden')); 
-        document.getElementById('view-'+v)?.classList.remove('hidden'); 
-        window.scrollTo(0,0);
+    // Tenta recuperar sessão ao iniciar
+    try { state.currentUser = sessionStorage.getItem('kds_user'); } catch(e){}
+
+    // --- ROUTER (GLOBAL) ---
+    function router(view) {
+        if (view === 'kds' && !state.currentUser) {
+            alert("Acesso restrito. Faça login.");
+            router('admin-login');
+            return;
+        }
+        // Esconde todas as views
+        const views = ['view-home', 'view-kds', 'view-servicos-auth', 'view-servicos-agenda', 'view-produtos', 'view-admin-login'];
+        views.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.classList.add('hidden');
+        });
+        // Mostra a alvo
+        const target = document.getElementById('view-' + view);
+        if (target) {
+            target.classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
     }
-    // Expor router globalmente para segurança
-    window.router = router;
 
-    function toggleLoading(s){document.getElementById('loading').classList.toggle('hidden',!s);}
-    
-    document.addEventListener('DOMContentLoaded', ()=>{ 
+    function toggleLoading(show) { 
+        const el = document.getElementById('loading');
+        if(el) el.classList.toggle('hidden', !show); 
+    }
+
+    // Inicialização
+    window.addEventListener('DOMContentLoaded', () => {
         toggleLoading(true);
-        google.script.run.withSuccessHandler(d=>{ 
-            state.catalogo=d; document.title=d.appName; 
-            if(document.getElementById('app-title')) document.getElementById('app-title').innerText=d.appName; 
-            renderProdutos(); renderServicos(); populateDropdowns(); toggleLoading(false); 
-        }).getCatalogo(); 
+        google.script.run.withSuccessHandler(data => {
+            state.catalogo = data;
+            document.title = data.appName || 'Studio AfroStyle';
+            const titleEl = document.getElementById('app-title');
+            if (titleEl) titleEl.innerText = data.appName;
+            
+            renderProdutos();
+            renderServicos();
+            populateDropdowns();
+            toggleLoading(false);
+        }).withFailureHandler(err => {
+            alert("Erro de conexão: " + err);
+            toggleLoading(false);
+        }).getCatalogo();
     });
 
-    // --- KDS ---
-    function doAdminLogin(){ 
-        const u=document.getElementById('adm-user').value, p=document.getElementById('adm-pass').value; 
-        if(!u||!p) return alert("Preencha todos os campos"); 
-        toggleLoading(true); 
-        google.script.run.withSuccessHandler(r=>{ 
-            toggleLoading(false); 
-            if(r.success){
-                state.currentUser=u;
-                sessionStorage.setItem('kds_user',u);
+    // --- FUNÇÕES DE LÓGICA DE NEGÓCIO ---
+
+    function doAdminLogin() {
+        const u = document.getElementById('adm-user').value;
+        const p = document.getElementById('adm-pass').value;
+        if (!u || !p) return alert("Preencha todos os campos");
+        toggleLoading(true);
+        google.script.run.withSuccessHandler(res => {
+            toggleLoading(false);
+            if (res.success) {
+                state.currentUser = u;
+                sessionStorage.setItem('kds_user', u);
                 router('kds');
                 loadKDS();
             } else {
-                alert(r.message); 
+                alert(res.message);
             }
-        }).verificarLoginAdmin(u,p); 
+        }).verificarLoginAdmin(u, p);
     }
 
-    function doLogout(){ state.currentUser=null; sessionStorage.removeItem('kds_user'); router('home'); }
-    
-    function loadKDS(){ 
-        if(!state.currentUser) return router('admin-login'); 
-        google.script.run.withSuccessHandler(d=>{ 
-            state.kdsData=d; applyKDSFilters(); 
-        }).getKDSData(); 
+    function doLogout() {
+        state.currentUser = null;
+        sessionStorage.removeItem('kds_user');
+        router('home');
     }
 
-    function applyKDSFilters(){
-        const txt=document.getElementById('filter-text').value.toLowerCase();
-        const date=document.getElementById('filter-date').value;
-        const status=document.getElementById('filter-status').value;
-        const type=document.getElementById('filter-type').value;
+    function loadKDS() {
+        if (!state.currentUser) return router('admin-login');
+        document.getElementById('kds-pedidos').innerHTML = 'Atualizando...';
+        document.getElementById('kds-agenda').innerHTML = 'Atualizando...';
+        google.script.run.withSuccessHandler(data => {
+            state.kdsData = data;
+            applyKDSFilters();
+        }).getKDSData();
+    }
+
+    function applyKDSFilters() {
+        const txt = document.getElementById('filter-text').value.toLowerCase();
+        const date = document.getElementById('filter-date').value;
+        const status = document.getElementById('filter-status').value;
+        const type = document.getElementById('filter-type').value;
         
-        const p = state.kdsData.pedidos.filter(x => filterItem(x,txt,date,status) && type!=='AGENDAMENTO');
-        const a = state.kdsData.agendamentos.filter(x => filterItem(x,txt,date,status) && type!=='PEDIDO');
+        const p = state.kdsData.pedidos.filter(x => filterItem(x, txt, date, status) && type !== 'AGENDAMENTO');
+        const a = state.kdsData.agendamentos.filter(x => filterItem(x, txt, date, status) && type !== 'PEDIDO');
         
-        renderList('kds-pedidos',p,'PEDIDO'); 
-        renderList('kds-agenda',a,'AGENDAMENTO');
-        document.getElementById('count-pedidos').innerText=p.length; 
-        document.getElementById('count-agenda').innerText=a.length;
+        renderList('kds-pedidos', p, 'PEDIDO');
+        renderList('kds-agenda', a, 'AGENDAMENTO');
+        
+        document.getElementById('count-pedidos').innerText = p.length;
+        document.getElementById('count-agenda').innerText = a.length;
     }
 
-    function filterItem(i,t,d,s){
-        if(s && !i.Status.includes(s)) return false;
-        if(d && !(i.Data||i.Data_Agendada).startsWith(d)) return false;
-        if(t && !JSON.stringify(i).toLowerCase().includes(t)) return false;
+    function filterItem(i, t, d, s) {
+        if (s && !i.Status.includes(s)) return false;
+        const dataItem = i.Data || i.Data_Agendada;
+        if (d && dataItem && !dataItem.startsWith(d)) return false;
+        if (t && !JSON.stringify(i).toLowerCase().includes(t)) return false;
         return true;
     }
 
-    function renderList(id,l,t){ 
-        const c=document.getElementById(id); c.innerHTML=''; 
-        l.forEach(x=>{ 
-            let cli={nome:'?'}; try{cli=JSON.parse(x.Cliente_Json)}catch(e){} 
-            let its=[]; try{its=JSON.parse(x.Itens_Json)}catch(e){} 
-            let cls = x.Status.includes('RECEBIDO')||x.Status.includes('PENDENTE')?'status-recebido':(x.Status.includes('CONFIRMADO')?'status-confirmado':'status-preparo');
+    function renderList(id, list, type) {
+        const c = document.getElementById(id);
+        c.innerHTML = '';
+        if (list.length === 0) { c.innerHTML = '<div class="text-gray-400 text-center p-2">Vazio</div>'; return; }
+        
+        list.forEach(x => {
+            let cli = { nome: '?' }; try { cli = JSON.parse(x.Cliente_Json) } catch (e) {}
+            let its = []; try { its = JSON.parse(x.Itens_Json) } catch (e) {}
             
-            c.innerHTML+=`<div class="bg-white p-3 rounded shadow mb-2 kds-card border-l-4 ${cls}">
+            let cls = 'border-gray-300';
+            if (x.Status.includes('RECEBIDO') || x.Status.includes('PENDENTE')) cls = 'status-recebido';
+            else if (x.Status.includes('CONFIRMADO') || x.Status.includes('PREPARO')) cls = 'status-preparo';
+            else if (x.Status.includes('SAIU')) cls = 'status-saiu';
+            else if (x.Status.includes('FINALIZADO') || x.Status.includes('CONCLUIDO')) cls = 'status-confirmado';
+
+            c.innerHTML += `<div class="bg-white p-3 rounded shadow mb-2 kds-card border-l-4 ${cls}">
                 <div class="flex justify-between text-xs font-bold"><span>#${x.ID.split('-')[1]}</span><span>${x.Status}</span></div>
                 <div class="font-bold">${cli.nome}</div>
-                <div class="text-xs text-gray-500">${its.map(i=>i.Nome).join(', ')}</div>
-                <div class="mt-2 flex justify-end gap-1">${kdsBtns(t,x.ID,x.Status)}</div>
-            </div>`; 
-        }); 
+                <div class="text-xs text-gray-500">${its.map(i => i.Nome).join(', ')}</div>
+                <div class="mt-2 flex justify-end gap-1">${kdsBtns(type, x.ID, x.Status)}</div>
+            </div>`;
+        });
     }
-    
-    function kdsBtns(t,id,st){ 
-        if(t==='PEDIDO'){ 
-            if(st==='RECEBIDO') return btn(t,id,'EM PREPARO','blue','Preparo'); 
-            if(st==='EM PREPARO') return btn(t,id,'SAIU PARA ENTREGA','purple','Enviar'); 
-            if(st==='SAIU PARA ENTREGA') return btn(t,id,'CONCLUIDO','green','Concluir'); 
-        } else { 
-            if(st==='PENDENTE') return btn(t,id,'CONFIRMADO','blue','Confirmar'); 
-            if(st==='CONFIRMADO') return btn(t,id,'FINALIZADO','green','Finalizar'); 
-        } 
-        return ''; 
+
+    function kdsBtns(t, id, st) {
+        if (t === 'PEDIDO') {
+            if (st === 'RECEBIDO') return btn(t, id, 'EM PREPARO', 'blue', 'Preparo');
+            if (st === 'EM PREPARO') return btn(t, id, 'SAIU PARA ENTREGA', 'purple', 'Enviar');
+            if (st === 'SAIU PARA ENTREGA') return btn(t, id, 'CONCLUIDO', 'green', 'Concluir');
+        } else {
+            if (st === 'PENDENTE') return btn(t, id, 'CONFIRMADO', 'blue', 'Confirmar');
+            if (st === 'CONFIRMADO') return btn(t, id, 'FINALIZADO', 'green', 'Finalizar');
+        }
+        return '';
     }
-    
-    function btn(t,id,nst,c,l){ return `<button onclick="upSt('${t}','${id}','${nst}')" class="bg-${c}-100 text-${c}-700 px-2 py-1 rounded text-xs">${l}</button>`; }
-    
-    function upSt(t,id,s){ 
-        if(confirm("Mudar status?")){ 
-            toggleLoading(true); 
-            google.script.run.withSuccessHandler((res)=>{ 
-                loadKDS(); toggleLoading(false); 
-                if(res.whatsappLink) window.open(res.whatsappLink,'_blank'); 
-            }).updateStatusKDS(t,id,s,state.currentUser); 
-        } 
+
+    function btn(t, id, nst, c, l) {
+        return `<button onclick="updateStatus('${t}','${id}','${nst}')" class="bg-${c}-100 text-${c}-700 px-2 py-1 rounded text-xs font-bold border border-${c}-200 hover:bg-${c}-200">${l}</button>`;
+    }
+
+    function updateStatus(type, id, status) {
+        if (!confirm(`Confirma mudança para ${status}?`)) return;
+        toggleLoading(true);
+        google.script.run.withSuccessHandler((res) => {
+            loadKDS();
+            toggleLoading(false);
+            if (res.whatsappLink) window.open(res.whatsappLink, '_blank');
+        }).updateStatusKDS(type, id, status, state.currentUser);
     }
 
     // --- CLIENTE ---
-    function renderProdutos(){ 
-        const g=document.getElementById('grid-produtos'); if(!g) return; g.innerHTML=''; 
-        state.catalogo.produtos.forEach(p=>{ 
-            // Usando createElement para evitar erros de template string
-            const d=document.createElement('div'); 
-            d.className='bg-white p-3 rounded shadow border h-56 flex flex-col justify-between';
-            d.innerHTML=`<div class="h-28 bg-gray-200 rounded overflow-hidden">${p.Foto_Url?`<img src="${p.Foto_Url}" class="w-full h-full object-cover">`:''}</div><div><div class="font-bold text-sm leading-tight">${p.Nome}</div><div class="text-green-600 font-bold">R$ ${p.Preco.toFixed(2)}</div></div>`;
-            
-            const btn = document.createElement('button');
-            btn.className = "w-full bg-green-50 text-green-700 text-xs py-1 rounded border";
-            btn.innerText = "Add";
-            btn.onclick = () => addCartProd(p.ID);
-            d.appendChild(btn);
-            
-            g.appendChild(d); 
-        }); 
+    function renderProdutos() {
+        const g = document.getElementById('grid-produtos');
+        if (!g) return; g.innerHTML = '';
+        state.catalogo.produtos.forEach(p => {
+            const d = document.createElement('div');
+            d.className = 'bg-white p-3 rounded shadow border h-56 flex flex-col justify-between';
+            d.innerHTML = `<div class="h-28 bg-gray-200 rounded overflow-hidden">${p.Foto_Url ? `<img src="${p.Foto_Url}" class="w-full h-full object-cover">` : ''}</div><div><div class="font-bold text-sm leading-tight">${p.Nome}</div><div class="text-green-600 font-bold">R$ ${p.Preco.toFixed(2)}</div></div>`;
+            const b = document.createElement('button'); b.className = "w-full bg-green-50 text-green-700 text-xs py-1 rounded border font-bold hover:bg-green-100"; b.innerText = "Adicionar";
+            b.onclick = () => addCartProd(p.ID);
+            d.appendChild(b); g.appendChild(d);
+        });
     }
-    
 
-    function addCartProd(id){ const i=state.catalogo.produtos.find(x=>String(x.ID)===String(id)); if(i){state.cartProd.push(i); updateCartProdUI();} }
-    function updateCartProdUI(){ document.getElementById('cart-total-float').innerText='R$ '+state.cartProd.reduce((a,b)=>a+b.Preco,0).toFixed(2); document.getElementById('btn-cart-prod').classList.remove('hidden'); }
-    
-    function openCheckout(){ 
-        if(!state.cartProd.length) return; 
-        const d=document.getElementById('checkout-itens'); d.innerHTML=''; 
-        const c={}; state.cartProd.forEach(x=>{c[x.Nome]=(c[x.Nome]||0)+1}); 
-        for(const [n,q] of Object.entries(c)){ const p=state.cartProd.find(x=>x.Nome===n).Preco; d.innerHTML+=`<div class="flex justify-between border-b border-dashed"><span>${q}x ${n}</span><span>R$ ${(p*q).toFixed(2)}</span></div>`; } 
-        document.getElementById('modal-checkout').classList.remove('hidden'); calcTotal(); 
+    function addCartProd(id) {
+        const i = state.catalogo.produtos.find(x => String(x.ID) === String(id));
+        if (i) { state.cartProd.push(i); updateCartProdUI(); }
     }
-    
-    function closeCheckout(){ document.getElementById('modal-checkout').classList.add('hidden'); }
-    
-    function calcTotal(){ 
-        const s=state.cartProd.reduce((a,b)=>a+b.Preco,0); 
-        const tx=Number(document.getElementById('chk-regiao').value); 
-        document.getElementById('info-entrega').classList.toggle('hidden', tx<=0); 
-        document.getElementById('chk-total-final').innerText='R$ '+(s+tx).toFixed(2); 
-        return {sub:s,taxa:tx,total:s+tx}; 
+
+    function updateCartProdUI() {
+        const total = state.cartProd.reduce((a, b) => a + b.Preco, 0);
+        const el = document.getElementById('cart-total-float'); if(el) el.innerText = 'R$ ' + total.toFixed(2);
+        const btn = document.getElementById('btn-cart-prod'); if(btn) btn.classList.remove('hidden');
     }
-    
-    function enviarPedido(){ 
-        const n=document.getElementById('chk-nome').value, t=document.getElementById('chk-tel').value, pg=document.getElementById('chk-pgto').value, tx=Number(document.getElementById('chk-regiao').value), end=document.getElementById('chk-end').value; 
-        if(!n||!t||!pg) return alert("Preencha tudo"); 
-        if(tx>0&&!end) return alert("Endereço?"); 
+
+    function openCheckout() {
+        if (!state.cartProd.length) return;
+        const d = document.getElementById('checkout-itens'); d.innerHTML = '';
+        const c = {}; state.cartProd.forEach(x => { c[x.Nome] = (c[x.Nome] || 0) + 1 });
+        for (const [n, q] of Object.entries(c)) {
+            const p = state.cartProd.find(x => x.Nome === n).Preco;
+            d.innerHTML += `<div class="flex justify-between border-b border-dashed pb-1 mb-1"><span>${q}x ${n}</span><span>R$ ${(p * q).toFixed(2)}</span></div>`;
+        }
+        document.getElementById('modal-checkout').classList.remove('hidden');
+        calcTotal();
+    }
+
+    function closeCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
+
+    function calcTotal() {
+        const s = state.cartProd.reduce((a, b) => a + b.Preco, 0);
+        const txEl = document.getElementById('chk-regiao');
+        const tx = txEl ? Number(txEl.value) : 0;
+        const info = document.getElementById('info-entrega'); if(info) info.classList.toggle('hidden', tx <= 0);
+        const totEl = document.getElementById('chk-total-final'); if(totEl) totEl.innerText = 'R$ ' + (s + tx).toFixed(2);
+        return { sub: s, taxa: tx, total: s + tx };
+    }
+
+    function enviarPedido() {
+        const n = document.getElementById('chk-nome').value, t = document.getElementById('chk-tel').value, pg = document.getElementById('chk-pgto').value, tx = Number(document.getElementById('chk-regiao').value), end = document.getElementById('chk-end').value;
+        if (!n || !t || !pg) return alert("Preencha todos os campos obrigatórios.");
+        if (tx > 0 && !end) return alert("Endereço é obrigatório para entrega.");
         
-        toggleLoading(true); const v=calcTotal(); 
-        const p={cliente:{nome:n,telefone:t,endereco:end},itens:state.cartProd,subtotal:v.sub,taxaEntrega:v.taxa,total:v.total,pagamento:pg,whatsappLoja:state.catalogo.config.whatsappLoja}; 
+        toggleLoading(true);
+        const v = calcTotal();
+        const p = { cliente: { nome: n, telefone: t, endereco: end }, itens: state.cartProd, subtotal: v.sub, taxaEntrega: v.taxa, total: v.total, pagamento: pg, whatsappLoja: state.catalogo.config.whatsappLoja };
         
-        google.script.run.withSuccessHandler(r=>{ 
-            if(r.success){ 
-                const msg=`*PEDIDO #${r.id}*\n👤 ${n}\n📱 ${t}\n💵 Total: R$ ${v.total.toFixed(2)}\n💳 ${pg}`; 
-                window.open(`https://wa.me/${r.whatsappLoja}?text=${encodeURIComponent(msg)}`,'_blank'); 
-                setTimeout(()=>window.top.location.reload(),2000); 
+        google.script.run.withSuccessHandler(r => {
+            if (r.success) {
+                const msg = `*PEDIDO #${r.id}*\n👤 ${n}\n📱 ${t}\n💵 Total: R$ ${v.total.toFixed(2)}\n💳 ${pg}`;
+                window.open(`https://wa.me/${r.whatsappLoja}?text=${encodeURIComponent(msg)}`, '_blank');
+                setTimeout(() => window.top.location.reload(), 2000);
             } else {
                 alert(r.message); toggleLoading(false);
-            } 
-        }).criarPedidoProduto(p); 
+            }
+        }).criarPedidoProduto(p);
     }
 
     // AGENDA
-    function goToAgenda(){ const n=document.getElementById('srv-nome').value, t=document.getElementById('srv-tel').value; if(!n||!t)return alert("Dados?"); state.userServ={nome:n,telefone:t}; router('servicos-agenda'); }
-    
-    function renderServicos(){ 
-        const g=document.getElementById('grid-servicos'); if(!g) return; g.innerHTML=''; 
-        state.catalogo.servicos.forEach(s=>{ 
-            const d=document.createElement('div'); d.className='bg-white p-3 rounded shadow border flex items-center gap-3';
-            d.innerHTML=`<div class="w-16 h-16 bg-gray-200 rounded overflow-hidden">${s.Foto_Url?`<img src="${s.Foto_Url}" class="w-full h-full object-cover">`:''}</div><div class="flex-1"><h4 class="font-bold">${s.Nome}</h4><p class="text-xs text-gray-500">${s.Duracao_Minutos} min</p><p class="text-primary font-bold">R$ ${s.Preco.toFixed(2)}</p></div>`;
-            
+    function goToAgenda() {
+        const n = document.getElementById('srv-nome').value, t = document.getElementById('srv-tel').value;
+        if (!n || !t) return alert("Preencha seus dados.");
+        state.userServ = { nome: n, telefone: t };
+        router('servicos-agenda');
+    }
+
+    function renderServicos() {
+        const g = document.getElementById('grid-servicos'); if (!g) return; g.innerHTML = '';
+        state.catalogo.servicos.forEach(s => {
+            const d = document.createElement('div');
+            d.className = 'bg-white p-3 rounded shadow border flex items-center gap-3';
+            d.innerHTML = `<div class="w-16 h-16 bg-gray-200 rounded overflow-hidden flex-shrink-0">${s.Foto_Url ? `<img src="${s.Foto_Url}" class="w-full h-full object-cover">` : ''}</div><div class="flex-1"><h4 class="font-bold text-gray-800">${s.Nome}</h4><p class="text-xs text-gray-500">${s.Duracao_Minutos} min</p><p class="text-primary font-bold">R$ ${s.Preco.toFixed(2)}</p></div>`;
             const btn = document.createElement('button');
-            btn.className = "px-3 py-1 rounded border text-xs";
+            btn.className = "px-3 py-1 rounded border text-xs font-bold hover:bg-gray-50";
             btn.innerText = "Add";
             btn.onclick = () => toggleServ(s, btn);
             d.appendChild(btn);
-            
-            g.appendChild(d); 
-        }); 
+            g.appendChild(d);
+        });
     }
-    
-    function toggleServ(s, b){ 
-        const idx=state.cartServ.findIndex(x=>String(x.ID)===String(s.ID)); 
-        if(idx>-1){
-            state.cartServ.splice(idx,1);
-            b.innerText='Add';
-            b.className='px-3 py-1 rounded border text-xs';
+
+    function toggleServ(s, btn) {
+        const idx = state.cartServ.findIndex(x => String(x.ID) === String(s.ID));
+        if (idx > -1) {
+            state.cartServ.splice(idx, 1);
+            btn.innerText = 'Add';
+            btn.className = 'px-3 py-1 rounded border text-xs font-bold hover:bg-gray-50';
         } else {
             state.cartServ.push(s);
-            b.innerText='X';
-            b.className='px-3 py-1 rounded bg-red-500 text-white text-xs';
-        } 
-        document.getElementById('total-tempo-serv').innerText=state.cartServ.reduce((a,b)=>a+b.Duracao_Minutos,0)+' min'; 
-        document.getElementById('bar-servicos').classList.toggle('hidden',!state.cartServ.length); 
+            btn.innerText = 'X';
+            btn.className = 'px-3 py-1 rounded bg-red-500 text-white text-xs font-bold hover:bg-red-600';
+        }
+        const min = state.cartServ.reduce((a, b) => a + b.Duracao_Minutos, 0);
+        const el = document.getElementById('total-tempo-serv'); if(el) el.innerText = min + ' min';
+        const bar = document.getElementById('bar-servicos'); if(bar) bar.classList.toggle('hidden', !state.cartServ.length);
     }
-    
-    function openBookingModal(){ document.getElementById('modal-booking').classList.remove('hidden'); }
-    function closeModalBooking(){ document.getElementById('modal-booking').classList.add('hidden'); }
-    
-    function fetchSlots(){ 
-        const d=document.getElementById('date-picker').value; if(!d)return; 
-        const g=document.getElementById('slots-grid'); g.innerHTML='...'; 
-        google.script.run.withSuccessHandler(s=>{ 
-            g.innerHTML=''; 
-            if(s.length===0) { g.innerHTML='<p class="col-span-4 text-gray-400">Sem horários.</p>'; return; }
-            s.forEach(t=>{ 
-                const b=document.createElement('button'); 
-                b.innerText=t; 
-                b.className='border p-1 rounded hover:bg-primary hover:text-white';
-                b.onclick=()=>{ selSlot(t, b); };
-                g.appendChild(b); 
-            }); 
-        }).getHorariosDisponiveis(d, state.cartServ.reduce((a,b)=>a+b.Duracao_Minutos,0)||30); 
+
+    function openBookingModal() { document.getElementById('modal-booking').classList.remove('hidden'); }
+    function closeModalBooking() { document.getElementById('modal-booking').classList.add('hidden'); }
+
+    function fetchSlots() {
+        const d = document.getElementById('date-picker').value;
+        if (!d) return;
+        const g = document.getElementById('slots-grid');
+        g.innerHTML = '<p class="col-span-4 text-center text-gray-400 py-2">Buscando...</p>';
+        const dur = state.cartServ.reduce((a, b) => a + b.Duracao_Minutos, 0) || 30;
+        
+        google.script.run.withSuccessHandler(s => {
+            g.innerHTML = '';
+            if (s.length === 0) { g.innerHTML = '<p class="col-span-4 text-center text-gray-400 py-2">Sem horários.</p>'; return; }
+            s.forEach(t => {
+                const b = document.createElement('button');
+                b.innerText = t;
+                b.className = 'border p-2 rounded hover:bg-primary hover:text-white transition text-sm font-bold';
+                b.onclick = () => selSlot(t, b);
+                g.appendChild(b);
+            });
+        }).getHorariosDisponiveis(d, dur);
     }
-    
-    function selSlot(t,b){ 
-        state.selectedSlot=t; 
-        state.selectedDate=document.getElementById('date-picker').value; 
-        document.querySelectorAll('#slots-grid button').forEach(x=>x.className='border p-1 rounded hover:bg-primary hover:text-white'); 
-        b.className='bg-primary text-white p-1 rounded'; 
+
+    function selSlot(t, b) {
+        state.selectedSlot = t;
+        state.selectedDate = document.getElementById('date-picker').value;
+        document.querySelectorAll('#slots-grid button').forEach(x => x.className = 'border p-2 rounded hover:bg-primary hover:text-white transition text-sm font-bold');
+        b.className = 'bg-primary text-white p-2 rounded text-sm font-bold shadow';
     }
-    
-    function confirmarAgendamento(){ 
-        if(!state.selectedSlot) return alert("Horário?"); 
-        const pg=document.getElementById('serv-pgto').value, loc=document.getElementById('sel-local').value, end=document.getElementById('cli-end-serv').value; 
-        if(!pg) return alert("Pagamento?"); 
-        if(loc==='DOMICILIO'&&!end) return alert("Endereço?"); 
+
+    function confirmarAgendamento() {
+        if (!state.selectedSlot) return alert("Selecione um horário.");
+        const pgto = document.getElementById('serv-pgto').value;
+        const local = document.getElementById('sel-local').value;
+        const end = document.getElementById('cli-end-serv').value;
+        if (!pgto) return alert("Selecione o pagamento.");
+        if (local === 'DOMICILIO' && !end) return alert("Digite o endereço.");
+
+        toggleLoading(true);
         
-        toggleLoading(true); 
-        const dur=state.cartServ.reduce((a,b)=>a+b.Duracao_Minutos,0); 
-        const [h,m]=state.selectedSlot.split(':').map(Number); 
-        const fim=new Date(); fim.setHours(h,m+dur); 
+        const dur = state.cartServ.reduce((a, b) => a + b.Duracao_Minutos, 0);
+        const [h, m] = state.selectedSlot.split(':').map(Number);
+        const fim = new Date(); fim.setHours(h, m + dur);
         
-        const pl={cliente:{...state.userServ,endereco:end},itens:state.cartServ,data:state.selectedDate,horaInicio:state.selectedSlot,horaFim:fim.toTimeString().substring(0,5),total:state.cartServ.reduce((a,b)=>a+b.Preco,0),tipoAtendimento:loc,endereco:end,pagamento:pg}; 
-        
-        google.script.run.withSuccessHandler(res=>{ 
-            if(res.success){ 
-                const msg=`*Agendamento #${res.id}*\n📅 ${state.selectedDate} às ${state.selectedSlot}`;
-                const url = `https://wa.me/${state.catalogo.config.whatsappLoja}?text=${encodeURIComponent(msg)}`;
+        const pl = {
+            cliente: { ...state.userServ, endereco: end },
+            itens: state.cartServ,
+            data: state.selectedDate,
+            horaInicio: state.selectedSlot,
+            horaFim: fim.toTimeString().substring(0, 5),
+            total: state.cartServ.reduce((a, b) => a + b.Preco, 0),
+            tipoAtendimento: local,
+            endereco: end,
+            pagamento: pgto
+        };
+
+        google.script.run.withSuccessHandler(res => {
+            if (res.success) {
+                const servicosTxt = state.cartServ.map(s => `✂️ ${s.Nome}`).join('%0A');
+                const msg = `*NOVO AGENDAMENTO#${res.id}*%0A👤 ${state.userServ.nome}%0A📅 ${state.selectedDate} às ${state.selectedSlot}%0A📍 ${local}%0A${servicosTxt}`;
+                const url = `https://wa.me/${state.catalogo.config.whatsappLoja}?text=${msg}`;
                 
                 const link = document.createElement('a'); link.href = url; link.target = '_blank'; 
                 document.body.appendChild(link); link.click(); document.body.removeChild(link);
                 
-                setTimeout(()=>{ alert("Agendado!"); window.top.location.reload(); }, 1000);
-            } else { 
-                alert(res.message); toggleLoading(false); 
-            } 
-        }).criarAgendamentoServico(pl); 
+                setTimeout(() => { alert("Agendamento Solicitado!"); window.top.location.reload(); }, 1000);
+            } else {
+                alert("Erro: " + res.message);
+                toggleLoading(false);
+            }
+        }).criarAgendamentoServico(pl);
     }
 
-    function populateDropdowns(){ 
-        const f=(i,l)=>l?.forEach(x=>{const o=document.createElement('option');o.value=x.Valor_Taxa||x.Nome;o.innerText=x.Nome;document.getElementById(i)?.appendChild(o)}); 
-        if(state.catalogo.pagamentos) { f('chk-pgto',state.catalogo.pagamentos); f('serv-pgto',state.catalogo.pagamentos); }
-        if(state.catalogo.taxasEntrega) f('chk-regiao',state.catalogo.taxasEntrega); 
+    function populateDropdowns() {
+        const fill = (i, l) => {
+            const el = document.getElementById(i);
+            if(el) {
+                el.innerHTML = '<option value="">Selecione...</option>';
+                l?.forEach(x => {
+                    const o = document.createElement('option');
+                    o.value = x.Valor_Taxa || x.Nome;
+                    o.innerText = x.Nome;
+                    el.appendChild(o);
+                });
+            }
+        };
+        if (state.catalogo.pagamentos) {
+            fill('chk-pgto', state.catalogo.pagamentos);
+            fill('serv-pgto', state.catalogo.pagamentos);
+        }
+        if (state.catalogo.taxasEntrega) {
+            fill('chk-regiao', state.catalogo.taxasEntrega);
+        }
     }
   </script>
 </body>
+
 </html>
