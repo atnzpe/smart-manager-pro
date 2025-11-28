@@ -284,6 +284,7 @@ function updateStatusKDS(type, id, newStatus, userLog) {
   }
 }
 
+
 function criarEventoCalendar(ss, map) {
   try {
     const calendarId = getConf(ss, 'CALENDAR_ID', 'primary');

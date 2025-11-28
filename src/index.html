@@ -297,6 +297,7 @@
             g.appendChild(d); 
         }); 
     }
+    
 
     function addCartProd(id){ const i=state.catalogo.produtos.find(x=>String(x.ID)===String(id)); if(i){state.cartProd.push(i); updateCartProdUI();} }
     function updateCartProdUI(){ document.getElementById('cart-total-float').innerText='R$ '+state.cartProd.reduce((a,b)=>a+b.Preco,0).toFixed(2); document.getElementById('btn-cart-prod').classList.remove('hidden'); }
