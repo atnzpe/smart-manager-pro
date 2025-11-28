@@ -59,7 +59,8 @@
     <div class="text-center mb-8">
       <div
         class="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl text-primary">
-        <i class="fas fa-store"></i></div>
+        <i class="fas fa-store"></i>
+      </div>
       <h1 id="app-title" class="text-3xl font-bold text-gray-800">...</h1>
       <p class="text-gray-500">Bem-vindo(a)</p>
     </div>
@@ -85,7 +86,7 @@
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-2xl font-bold"><i class="fas fa-tasks mr-2"></i> Gestão</h2>
       <div><button onclick="loadKDS()" class="bg-blue-500 text-white px-3 py-2 rounded mr-2"><i
-            class="fas fa-sync"></i></button><button onclick="router('home')"
+            class="fas fa-sync"></i></button><button onclick="doLogout()"
           class="bg-gray-500 text-white px-3 py-2 rounded">Sair</button></div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -205,10 +206,96 @@
   </div>
 
   <script>
-    const state = { cartProd: [], cartServ: [], catalogo: {}, userServ: {}, selectedSlot: null, selectedDate: null };
-    function router(v) { ['home', 'servicos-auth', 'servicos-agenda', 'produtos', 'admin-login', 'kds'].forEach(x => document.getElementById('view-' + x)?.classList.add('hidden')); document.getElementById('view-' + v)?.classList.remove('hidden'); window.scrollTo(0, 0); }
-    function toggleLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
+    // ESTADO GLOBAL
+    const state = {
+      cartProd: [], cartServ: [], catalogo: {}, userServ: {},
+      selectedSlot: null, selectedDate: null,
+      // Tenta recuperar sessão salva ou inicia nulo
+      currentUser: sessionStorage.getItem('kds_user')
+    };
 
+    // --- MIDDLEWARE DE ROTEAMENTO (SEGURANÇA) ---
+    function router(view) {
+      // Regra de Proteção: Se tentar acessar KDS sem estar logado
+      if (view === 'kds' && !state.currentUser) {
+        console.warn("Acesso negado: Login necessário.");
+        alert("Acesso restrito a funcionários.");
+        router('admin-login'); // Redireciona para login
+        return;
+      }
+
+      // Navegação Normal
+      document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById('view-' + view);
+      if (target) {
+        target.classList.remove('hidden');
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function toggleLoading(show) { document.getElementById('loading').classList.toggle('hidden', !show); }
+
+    // INICIALIZAÇÃO
+    document.addEventListener('DOMContentLoaded', () => {
+      toggleLoading(true);
+      google.script.run.withSuccessHandler(data => {
+        state.catalogo = data;
+        document.title = data.appName;
+        const titleEl = document.getElementById('app-title');
+        if (titleEl) titleEl.innerText = data.appName;
+
+        renderProdutos();
+        renderServicos();
+        populateDropdowns();
+        toggleLoading(false);
+
+        // Se usuário já tinha sessão salva, pode ir direto pro KDS se quiser (opcional)
+        // if(state.currentUser) router('kds'); 
+      }).withFailureHandler(e => { alert("Erro de conexão: " + e); toggleLoading(false); }).getCatalogo();
+    });
+
+    // --- KDS FUNCTIONS (COM LOGIN REAL) ---
+    function doAdminLogin() {
+      const u = document.getElementById('adm-user').value;
+      const p = document.getElementById('adm-pass').value;
+      if (!u || !p) return alert("Preencha todos os campos.");
+
+      toggleLoading(true);
+      google.script.run.withSuccessHandler(res => {
+        toggleLoading(false);
+        if (res.success) {
+          // SUCESSO: Salva sessão e redireciona
+          state.currentUser = u;
+          sessionStorage.setItem('kds_user', u); // Persistência básica
+          router('kds');
+          loadKDS();
+        } else {
+          alert(res.message);
+        }
+      }).verificarLoginAdmin(u, p);
+    }
+
+    function doLogout() {
+      state.currentUser = null;
+      sessionStorage.removeItem('kds_user');
+      router('home');
+    }
+
+    // Atualizei o botão de sair no HTML do KDS para chamar doLogout()
+    // Procure no HTML a função do botão "Sair" dentro da div "view-kds" e mude para: onclick="doLogout()"
+
+    function loadKDS() {
+      // Proteção extra: só carrega dados se logado
+      if (!state.currentUser) return;
+
+      document.getElementById('kds-pedidos').innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Atualizando...</div>';
+      document.getElementById('kds-agenda').innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Atualizando...</div>';
+
+      google.script.run.withSuccessHandler(data => {
+        state.kdsData = data;
+        applyKDSFilters();
+      }).getKDSData();
+    }
     document.addEventListener('DOMContentLoaded', () => { toggleLoading(true); google.script.run.withSuccessHandler(d => { state.catalogo = d; document.title = d.appName; document.getElementById('app-title').innerText = d.appName; renderProdutos(); renderServicos(); populateDropdowns(); toggleLoading(false); }).getCatalogo(); });
 
     // LOJA

@@ -4,6 +4,7 @@
 <head>
   <base target="_top">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     body {
@@ -11,7 +12,37 @@
       background-color: #F3F4F6;
     }
 
-    /* Estilos Customizados */
+    /* Estilos das Abas */
+    .nav-tab {
+      cursor: pointer;
+      padding: 12px;
+      text-align: center;
+      color: #6b7280;
+      border-bottom: 3px solid transparent;
+      font-weight: 600;
+      flex: 1;
+      transition: all 0.2s;
+      font-size: 0.8rem;
+    }
+
+    .nav-tab.active {
+      border-bottom-color: #8B5CF6;
+      color: #8B5CF6;
+      background: #fff;
+    }
+
+    .nav-tab:hover:not(.active) {
+      background: #e5e7eb;
+    }
+
+    /* Estilos Gerais */
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
     .input-field {
       width: 100%;
       padding: 8px;
@@ -20,7 +51,6 @@
       font-size: 0.875rem;
       margin-bottom: 8px;
       outline: none;
-      transition: border-color 0.2s;
     }
 
     .input-field:focus {
@@ -36,347 +66,289 @@
       font-weight: 600;
       width: 100%;
       cursor: pointer;
-      transition: background-color 0.2s;
     }
 
     .btn-primary:hover {
       background-color: #7C3AED;
     }
 
-    .btn-danger {
-      color: #EF4444;
-      font-size: 0.875rem;
-      margin-top: 1rem;
-      cursor: pointer;
-      text-decoration: underline;
-      width: 100%;
-      text-align: center;
+    .loader {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #8B5CF6;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
 
-<body class="p-2">
+<body class="p-0">
 
-  <div class="bg-white p-3 rounded-lg shadow-sm mb-3 sticky top-0 z-10">
-    <label class="block text-xs font-bold text-gray-500 mb-1">GERENCIAR MÓDULO:</label>
-    <select id="module-selector" onchange="loadTable()" class="w-full p-2 border rounded-md font-semibold text-gray-700 bg-gray-50 focus:ring-2 focus:ring-violet-200 outline-none">
-      <option value="SERVICOS">💆‍♀️ Serviços</option>
-      <option value="PRODUTOS">🛍️ Produtos</option>
-      <option value="PEDIDOS">📦 Pedidos (KDS)</option>
-      <option value="AGENDAMENTOS">📅 Agendamentos</option>
-      <option value="TAXAS_ENTREGA">🛵 Taxas de Entrega</option>
-      <option value="ENTREGADORES">👷 Entregadores</option>
-      <option value="USUARIOS">🔐 Usuários (Acesso)</option>
-      <option value="FORMAS_PAGAMENTO">💳 Pagamentos</option>
-      <option value="INSUMOS">🧪 Insumos</option>
-      <option value="CLIENTES">👥 Clientes</option>
-      <option value="CONFIG">⚙️ Configurações</option>
-    </select>
+  <div class="flex bg-gray-100 border-b border-gray-200 sticky top-0 z-50">
+    <div class="nav-tab active" onclick="switchTab('dash')" id="tab-dash"><i
+        class="fas fa-chart-pie block mb-1"></i>Dash</div>
+    <div class="nav-tab" onclick="switchTab('crud')" id="tab-crud"><i class="fas fa-list block mb-1"></i>Gestão</div>
+    <div class="nav-tab" onclick="switchTab('config')" id="tab-config"><i class="fas fa-cog block mb-1"></i>Config</div>
   </div>
 
-  <div id="view-list" class="space-y-2 pb-20">
-    <div class="flex justify-between items-center px-1">
-      <h3 class="font-bold text-gray-700" id="list-title">Lista</h3>
-      <button onclick="openForm()" class="bg-green-500 text-white w-8 h-8 rounded-full shadow hover:bg-green-600 flex items-center justify-center transition transform active:scale-95">
-        <i class="fas fa-plus"></i>
-      </button>
+  <div id="view-dash" class="p-4 space-y-4 animate-fade-in">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-lg font-bold text-gray-800" id="dash-app-name">...</h1>
+        <p class="text-xs text-gray-500">Financeiro Atual</p>
+      </div>
+      <button onclick="loadDashboardData()" class="text-gray-400 hover:text-blue-500"><i
+          class="fas fa-sync"></i></button>
     </div>
 
-    <div id="loading" class="text-center py-4 text-gray-400 hidden"><i class="fas fa-spinner fa-spin"></i> Carregando...
+    <div class="grid grid-cols-2 gap-3">
+      <div class="card border-l-4 border-blue-500">
+        <p class="text-xs text-gray-500 font-bold uppercase">Hoje</p>
+        <h2 class="text-xl font-bold text-gray-800" id="val-today">...</h2>
+      </div>
+      <div class="card border-l-4 border-green-500">
+        <p class="text-xs text-gray-500 font-bold uppercase">Mês</p>
+        <h2 class="text-xl font-bold text-gray-800" id="val-month">...</h2>
+      </div>
     </div>
 
-    <div id="items-container" class="space-y-2">
+    <div class="card">
+      <h3 class="text-sm font-bold text-gray-700 mb-3 border-b pb-2">Receita: Vendas vs Serviços</h3>
+      <div class="relative h-48"><canvas id="myChart"></canvas></div>
     </div>
   </div>
 
-  <div id="view-form" class="hidden fixed inset-0 bg-white z-20 flex flex-col h-screen animate-fade-in">
+  <div id="view-crud" class="hidden p-3 pb-20">
+    <div class="bg-white p-3 rounded-lg shadow-sm mb-3">
+      <select id="module-selector" onchange="loadTable()"
+        class="w-full p-2 border rounded-md font-semibold text-gray-700 bg-gray-50 focus:ring-2 focus:ring-violet-200 outline-none">
+        <option value="SERVICOS">💆‍♀️ Serviços</option>
+        <option value="PRODUTOS">🛍️ Produtos</option>
+        <option value="PEDIDOS">📦 Pedidos (KDS)</option>
+        <option value="AGENDAMENTOS">📅 Agendamentos</option>
+        <option value="INSUMOS">🧪 Insumos</option>
+        <option value="CLIENTES">👥 Clientes</option>
+        <option value="USUARIOS">🔐 Usuários</option>
+        <option value="TAXAS_ENTREGA">🛵 Taxas Entrega</option>
+        <option value="FORMAS_PAGAMENTO">💳 Pagamentos</option>
+      </select>
+    </div>
+
+    <div class="flex justify-between items-center px-1 mb-2">
+      <h3 class="font-bold text-gray-700 text-sm">Lista de Registros</h3>
+      <button onclick="openForm()"
+        class="bg-green-500 text-white w-8 h-8 rounded-full shadow hover:bg-green-600 flex items-center justify-center"><i
+          class="fas fa-plus"></i></button>
+    </div>
+
+    <div id="loading-crud" class="text-center py-4 text-gray-400 hidden"><i class="fas fa-spinner fa-spin"></i></div>
+    <div id="items-container" class="space-y-2"></div>
+  </div>
+
+  <div id="view-config" class="hidden p-4 space-y-4">
+    <div class="card">
+      <h3 class="text-sm font-bold text-gray-700 mb-3">Personalização</h3>
+      <label class="block text-xs font-bold text-gray-500 mb-1">NOME DA EMPRESA (APP)</label>
+      <input type="text" id="cfg-app-name" class="input-field" placeholder="Ex: Barbearia Top">
+      <button onclick="saveConfigName()" id="btn-save-cfg" class="btn-primary mt-2">Salvar Alteração</button>
+      <p class="text-xs text-gray-400 mt-2">Isso altera o título no topo do App do cliente.</p>
+    </div>
+
+    <div class="card bg-yellow-50 border border-yellow-100">
+      <h3 class="text-sm font-bold text-yellow-700 mb-2">💡 Dica Pro</h3>
+      <p class="text-xs text-yellow-600">Para alterar o WhatsApp ou ID do Calendar, use a aba "Gestão" e selecione o
+        módulo CONFIG na lista.</p>
+    </div>
+  </div>
+
+  <div id="view-form" class="hidden fixed inset-0 bg-white z-50 flex flex-col h-screen animate-fade-in">
     <div class="p-3 border-b flex justify-between items-center bg-gray-50">
       <h3 class="font-bold text-gray-800" id="form-title">Editar</h3>
-      <button onclick="closeForm()" class="text-gray-500 hover:text-red-500"><i class="fas fa-times text-lg"></i></button>
+      <button onclick="closeForm()" class="text-gray-500 hover:text-red-500"><i
+          class="fas fa-times text-lg"></i></button>
     </div>
-
-    <div class="flex-1 overflow-y-auto p-4 space-y-3" id="form-fields">
-    </div>
-
-    <div id="area-ficha-tecnica" class="hidden p-4 border-t border-gray-100 bg-gray-50">
-      <h4 class="font-bold text-xs text-gray-500 mb-2 uppercase">Ficha Técnica (Receita)</h4>
+    <div class="flex-1 overflow-y-auto p-4 space-y-3" id="form-fields"></div>
+    <div id="area-ficha-tecnica" class="hidden p-4 border-t bg-gray-50">
+      <h4 class="font-bold text-xs text-gray-500 mb-2 uppercase">Ficha Técnica</h4>
       <div id="ft-lista" class="space-y-2 mb-3"></div>
       <div class="flex gap-2">
         <select id="ft-select-insumo" class="flex-1 p-2 text-sm border rounded bg-white"></select>
         <input type="number" id="ft-qtd" placeholder="Qtd" class="w-16 p-2 text-sm border rounded">
-        <button onclick="addInsumoToFicha()" class="bg-blue-500 text-white px-3 rounded hover:bg-blue-600"><i class="fas fa-plus"></i></button>
+        <button onclick="addInsumoToFicha()" class="bg-blue-500 text-white px-3 rounded"><i
+            class="fas fa-plus"></i></button>
       </div>
     </div>
-
     <div class="p-3 border-t bg-gray-50">
-      <button onclick="saveItem()" class="btn-primary" id="btn-save"><i class="fas fa-save mr-2"></i> Salvar</button>
-      <button onclick="deleteCurrentItem()" id="btn-delete" class="btn-danger hidden">Excluir Registro</button>
+      <button onclick="saveItem()" class="btn-primary" id="btn-save">Salvar</button>
+      <button onclick="deleteCurrentItem()" id="btn-delete"
+        class="text-red-500 text-sm w-full mt-2 underline hidden">Excluir</button>
     </div>
   </div>
 
   <script>
-    let currentSchema = [];
-    let currentSheet = "";
-    let editingId = null;
-    
-    // Dados Auxiliares
-    let availableInsumos = []; 
-    let fichaTecnicaTemp = [];
+    // --- NAVEGAÇÃO ---
+    function switchTab(tab) {
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      ['dash', 'crud', 'config'].forEach(v => document.getElementById('view-' + v).classList.add('hidden'));
+      document.getElementById('view-' + tab).classList.remove('hidden');
 
-    window.onload = () => loadTable();
+      if (tab === 'dash') loadDashboardData();
+      if (tab === 'crud' && document.getElementById('items-container').innerHTML === '') loadTable();
+    }
 
-    // 1. CARREGAR TABELA
+    // --- DASHBOARD ---
+    let myChart = null;
+    function loadDashboardData() {
+      document.getElementById('val-today').innerHTML = '<div class="loader"></div>';
+      google.script.run.withSuccessHandler(renderDashboard).getDashboardMetrics();
+    }
+    function renderDashboard(data) {
+      document.getElementById('dash-app-name').innerText = data.appName;
+      document.getElementById('cfg-app-name').value = data.appName; // Preenche config também
+      document.getElementById('val-today').innerText = 'R$ ' + data.totalToday.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+      document.getElementById('val-month').innerText = 'R$ ' + data.totalMonth.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+
+      const ctx = document.getElementById('myChart').getContext('2d');
+      if (myChart) myChart.destroy();
+      myChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Vendas', 'Serviços'],
+          datasets: [{ data: [data.byType['Vendas'], data.byType['Serviços']], backgroundColor: ['#3B82F6', '#8B5CF6'], borderWidth: 0 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+
+    // --- CONFIGURAÇÃO ---
+    function saveConfigName() {
+      const name = document.getElementById('cfg-app-name').value;
+      const btn = document.getElementById('btn-save-cfg');
+      btn.innerText = 'Salvando...'; btn.disabled = true;
+      google.script.run.withSuccessHandler(() => {
+        btn.innerText = 'Salvo com Sucesso!';
+        setTimeout(() => { btn.innerText = 'Salvar Alteração'; btn.disabled = false; }, 2000);
+      }).setAppName(name);
+    }
+
+    // --- CRUD SYSTEM (CÓDIGO ORIGINAL) ---
+    let currentSchema = [], currentSheet = "", editingId = null, availableInsumos = [], fichaTecnicaTemp = [];
+
     function loadTable() {
       currentSheet = document.getElementById('module-selector').value;
       document.getElementById('items-container').innerHTML = '';
-      document.getElementById('loading').classList.remove('hidden');
-
-      google.script.run
-        .withSuccessHandler(renderList)
-        .withFailureHandler(err => {
-            alert("Erro: " + err);
-            document.getElementById('loading').classList.add('hidden');
-        })
-        .crudGetTableData(currentSheet);
+      document.getElementById('loading-crud').classList.remove('hidden');
+      google.script.run.withSuccessHandler(renderList).withFailureHandler(alert).crudGetTableData(currentSheet);
     }
 
-    // 2. RENDERIZAR LISTA
     function renderList(data) {
-      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('loading-crud').classList.add('hidden');
       currentSchema = data.headers;
-      if (data.extraData) availableInsumos = data.extraData; // Guarda insumos se vierem
-
-      const container = document.getElementById('items-container');
-      if (!data.items || data.items.length === 0) {
-        container.innerHTML = '<div class="text-center text-sm text-gray-400 py-4">Nenhum registro encontrado.</div>';
-        return;
-      }
+      if (data.extraData) availableInsumos = data.extraData;
+      const c = document.getElementById('items-container');
+      if (!data.items.length) { c.innerHTML = '<p class="text-center text-gray-400 text-sm mt-4">Vazio.</p>'; return; }
 
       data.items.forEach(item => {
-        // Tenta adivinhar qual campo usar como Título principal e Subtítulo
-        let title = item.Nome || item.Email || item.Cliente_Json || item.Chave || item.ID;
-        let sub = "";
+        let title = item.Nome || item.Email || item.ID;
+        let sub = item.Preco ? `R$ ${item.Preco}` : (item.Telefone || item.Categoria || '');
+        if (currentSheet === 'PEDIDOS') { try { let cl = JSON.parse(item.Cliente_Json); title = `#${item.ID.split('-')[1]} - ${cl.nome}`; sub = item.Status; } catch (e) { } }
 
-        // Tratamento visual específico por tabela
-        if(currentSheet === 'USUARIOS') {
-            title = item.Email;
-            sub = `Nível: ${item.Nivel}`;
-        } else if (currentSheet === 'PEDIDOS') {
-            let cli = {nome: '?'}; try{ cli = JSON.parse(item.Cliente_Json) }catch(e){}
-            title = `#${item.ID} - ${cli.nome}`;
-            sub = `${item.Status} | R$ ${item.Total}`;
-        } else {
-            // Genérico
-            sub = item.Preco ? `R$ ${item.Preco}` : (item.Telefone || item.Categoria || '');
-        }
-
-        const el = document.createElement('div');
-        el.className = "bg-white p-3 rounded border border-gray-200 shadow-sm hover:border-violet-400 cursor-pointer transition flex justify-between items-center";
-        el.onclick = () => openForm(item);
-        
-        el.innerHTML = `
-          <div class="overflow-hidden">
-            <div class="font-bold text-gray-800 text-sm truncate">${title}</div>
-            <div class="text-xs text-gray-500 truncate">${sub}</div>
-          </div>
-          <i class="fas fa-chevron-right text-gray-300 text-xs ml-2"></i>
-        `;
-        container.appendChild(el);
+        const div = document.createElement('div');
+        div.className = "bg-white p-3 rounded border shadow-sm flex justify-between items-center cursor-pointer hover:bg-gray-50";
+        div.onclick = () => openForm(item);
+        div.innerHTML = `<div><div class="font-bold text-gray-800 text-sm truncate w-48">${title}</div><div class="text-xs text-gray-500">${sub}</div></div><i class="fas fa-chevron-right text-gray-300 text-xs"></i>`;
+        c.appendChild(div);
       });
     }
 
-    // 3. ABRIR FORMULÁRIO (Construtor Inteligente)
     function openForm(item = null) {
-      const formContainer = document.getElementById('form-fields');
-      formContainer.innerHTML = '';
+      const c = document.getElementById('form-fields'); c.innerHTML = '';
       editingId = item ? item.ID : null;
-      fichaTecnicaTemp = []; // Reset
-
-      document.getElementById('form-title').innerText = item ? 'Editar Registro' : 'Novo Cadastro';
+      fichaTecnicaTemp = [];
+      document.getElementById('form-title').innerText = item ? 'Editar' : 'Novo';
       document.getElementById('btn-delete').classList.toggle('hidden', !item);
 
-      // Controle de Áreas Extras
-      const isServico = currentSheet === 'SERVICOS';
-      document.getElementById('area-ficha-tecnica').classList.toggle('hidden', !isServico);
+      const isServ = currentSheet === 'SERVICOS';
+      document.getElementById('area-ficha-tecnica').classList.toggle('hidden', !isServ);
+      if (isServ) setupFichaTecnica(item);
 
-      // Se for Serviço, setup da Ficha Técnica
-      if (isServico) {
-        setupFichaTecnica(item);
-      }
-
-      // Gera Inputs
-      currentSchema.forEach(header => {
-        if (header === 'ID' || header === 'Ficha_Tecnica_Json') return; // Campos internos ignorados
-
-        const wrapper = document.createElement('div');
-        const label = document.createElement('label');
-        label.className = "block text-xs font-bold text-gray-600 mb-1 uppercase";
-        label.innerText = header.replace(/_/g, ' ');
-
-        let input;
-        const val = item ? item[header] : '';
-
-        // --- LÓGICA DE TIPOS DE CAMPO ---
-        if (header === 'Ativo') {
-          input = createSelect(['true', 'false'], ['Sim', 'Não'], val || 'true');
-        } 
-        else if (header === 'Nivel' && currentSheet === 'USUARIOS') {
-          input = createSelect(['ADMIN', 'COLABORADOR', 'ENTREGADOR'], ['Admin (Total)', 'Colaborador (Vendas)', 'Entregador (View)'], val || 'COLABORADOR');
-        }
-        else if (header === 'Senha') {
-          input = document.createElement('input');
-          input.type = 'password';
-          input.className = "input-field";
-          input.value = val;
-          input.placeholder = "******";
-        }
-        else if (header.includes('Obs') || header.includes('Json') || header.includes('Descricao')) {
-          input = document.createElement('textarea');
-          input.className = "input-field h-20";
-          input.value = val;
-        } 
+      currentSchema.forEach(h => {
+        if (h === 'ID' || h === 'Ficha_Tecnica_Json') return;
+        const div = document.createElement('div');
+        div.innerHTML = `<label class="block text-xs font-bold text-gray-600 mb-1 uppercase">${h.replace(/_/g, ' ')}</label>`;
+        let input; const val = item ? item[h] : '';
+        if (h === 'Ativo') input = createSel(['true', 'false'], ['Sim', 'Não'], val || 'true');
+        else if (h === 'Nivel' && currentSheet === 'USUARIOS') input = createSel(['ADMIN', 'COLABORADOR', 'ENTREGADOR'], ['Admin', 'Colaborador', 'Entregador'], val || 'COLABORADOR');
         else {
-          input = document.createElement('input');
+          input = document.createElement(h.includes('Obs') || h.includes('Descricao') ? 'textarea' : 'input');
           input.className = "input-field";
-          input.value = val;
-          // Tipagem HTML5
-          if(header.includes('Preco') || header.includes('Custo') || header.includes('Taxa') || header.includes('Minutos') || header.includes('Estoque')) {
-              input.type = 'number';
-              input.step = "0.01";
+          if (input.tagName === 'INPUT') {
+            input.type = (h.includes('Preco') || h.includes('Custo') || h.includes('Estoque') || h.includes('Minutos')) ? 'number' : 'text';
+            if (input.type === 'number') input.step = "0.01";
           }
-          if(header.includes('Data') && !header.includes('Cadastro')) input.type = 'date';
+          input.value = val;
         }
-
-        input.id = `input-${header}`;
-        wrapper.appendChild(label);
-        wrapper.appendChild(input);
-        formContainer.appendChild(wrapper);
+        input.id = `inp-${h}`;
+        div.appendChild(input);
+        c.appendChild(div);
       });
-
       document.getElementById('view-form').classList.remove('hidden');
     }
 
-    // Helper para criar Selects
-    function createSelect(values, labels, selectedVal) {
-        const sel = document.createElement('select');
-        sel.className = "input-field bg-white";
-        values.forEach((v, i) => {
-            const opt = document.createElement('option');
-            opt.value = v;
-            opt.innerText = labels[i];
-            if(String(v) === String(selectedVal)) opt.selected = true;
-            sel.appendChild(opt);
-        });
-        return sel;
+    function createSel(v, l, s) {
+      const sel = document.createElement('select'); sel.className = "input-field bg-white";
+      v.forEach((val, i) => { const opt = document.createElement('option'); opt.value = val; opt.innerText = l[i]; if (String(val) === String(s)) opt.selected = true; sel.appendChild(opt); });
+      return sel;
     }
 
-    function closeForm() {
-      document.getElementById('view-form').classList.add('hidden');
-    }
-
-    // 4. SALVAR
     function saveItem() {
-      const btn = document.getElementById('btn-save');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Salvando...';
-      btn.disabled = true;
-
-      let payload = { ID: editingId };
-      
-      currentSchema.forEach(header => {
-        if (header === 'ID' || header === 'Ficha_Tecnica_Json') return;
-        const el = document.getElementById(`input-${header}`);
-        if(el) payload[header] = el.value;
-      });
-
-      // Anexa Ficha Técnica se for Serviço
-      if (currentSheet === 'SERVICOS') {
-          payload.Ficha_Tecnica_Json = JSON.stringify(fichaTecnicaTemp);
-      }
-
-      google.script.run
-        .withSuccessHandler(res => {
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-          closeForm();
-          loadTable();
-        })
-        .withFailureHandler(err => {
-            alert("Erro ao salvar: " + err);
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        })
-        .crudSaveItem(currentSheet, payload);
+      const btn = document.getElementById('btn-save'); btn.innerText = 'Salvando...'; btn.disabled = true;
+      let p = { ID: editingId };
+      currentSchema.forEach(h => { if (h !== 'ID' && h !== 'Ficha_Tecnica_Json') { const el = document.getElementById(`inp-${h}`); if (el) p[h] = el.value; } });
+      if (currentSheet === 'SERVICOS') p.Ficha_Tecnica_Json = JSON.stringify(fichaTecnicaTemp);
+      google.script.run.withSuccessHandler(() => { btn.innerText = 'Salvar'; btn.disabled = false; closeForm(); loadTable(); }).crudSaveItem(currentSheet, p);
     }
 
-    // 5. EXCLUIR
-    function deleteCurrentItem() {
-      if(!editingId || !confirm("Tem certeza que deseja excluir permanentemente?")) return;
-      
-      google.script.run.withSuccessHandler(() => {
-          closeForm();
-          loadTable();
-      }).crudDeleteItem(currentSheet, editingId);
-    }
+    function deleteCurrentItem() { if (confirm("Deletar?")) google.script.run.withSuccessHandler(() => { closeForm(); loadTable(); }).crudDeleteItem(currentSheet, editingId); }
+    function closeForm() { document.getElementById('view-form').classList.add('hidden'); }
 
-    // --- LÓGICA DE FICHA TÉCNICA (Frontend) ---
+    // --- FICHA TÉCNICA ---
     function setupFichaTecnica(item) {
-        const select = document.getElementById('ft-select-insumo');
-        select.innerHTML = '<option value="">Selecione...</option>';
-        availableInsumos.forEach(ins => {
-            select.innerHTML += `<option value="${ins.ID}">${ins.Nome} (${ins.Unidade})</option>`;
-        });
-
-        if (item && item.Ficha_Tecnica_Json) {
-            try { fichaTecnicaTemp = JSON.parse(item.Ficha_Tecnica_Json); } catch(e){ fichaTecnicaTemp = []; }
-        } else {
-            fichaTecnicaTemp = [];
-        }
-        renderFichaTecnica();
+      const sel = document.getElementById('ft-select-insumo'); sel.innerHTML = '<option value="">Item...</option>';
+      availableInsumos.forEach(i => sel.innerHTML += `<option value="${i.ID}">${i.Nome} (${i.Unidade})</option>`);
+      try { fichaTecnicaTemp = item && item.Ficha_Tecnica_Json ? JSON.parse(item.Ficha_Tecnica_Json) : []; } catch (e) { fichaTecnicaTemp = []; }
+      renderFicha();
     }
-
     function addInsumoToFicha() {
-        const select = document.getElementById('ft-select-insumo');
-        const qtdInput = document.getElementById('ft-qtd');
-        const id = select.value;
-        const qtd = qtdInput.value;
-        if(!id || !qtd) return;
-
-        const nomeRef = select.options[select.selectedIndex].text;
-        const existing = fichaTecnicaTemp.find(i => i.id_insumo === id);
-        
-        if(existing) existing.qtd = qtd;
-        else fichaTecnicaTemp.push({id_insumo: id, qtd: qtd, nome_ref: nomeRef});
-
-        qtdInput.value = '';
-        renderFichaTecnica();
+      const sel = document.getElementById('ft-select-insumo'), qtd = document.getElementById('ft-qtd');
+      if (!sel.value || !qtd.value) return;
+      const exists = fichaTecnicaTemp.find(x => x.id_insumo === sel.value);
+      if (exists) exists.qtd = qtd.value; else fichaTecnicaTemp.push({ id_insumo: sel.value, qtd: qtd.value, nome_ref: sel.options[sel.selectedIndex].text });
+      qtd.value = ''; renderFicha();
+    }
+    function removeInsumo(id) { fichaTecnicaTemp = fichaTecnicaTemp.filter(i => i.id_insumo !== id); renderFicha(); }
+    function renderFicha() {
+      const d = document.getElementById('ft-lista'); d.innerHTML = '';
+      fichaTecnicaTemp.forEach(i => {
+        let nome = i.nome_ref; if (!nome && availableInsumos.length) { const f = availableInsumos.find(x => x.ID == i.id_insumo); if (f) nome = `${f.Nome} (${f.Unidade})`; }
+        d.innerHTML += `<div class="flex justify-between bg-white p-2 border rounded text-xs"><span>${nome || i.id_insumo}</span><div class="flex gap-2"><span class="font-bold">${i.qtd}</span><button onclick="removeInsumo('${i.id_insumo}')" class="text-red-500">🗑️</button></div></div>`;
+      });
     }
 
-    function removeInsumo(id) {
-        fichaTecnicaTemp = fichaTecnicaTemp.filter(i => i.id_insumo !== id);
-        renderFichaTecnica();
-    }
-
-    function renderFichaTecnica() {
-        const div = document.getElementById('ft-lista');
-        div.innerHTML = '';
-        fichaTecnicaTemp.forEach(i => {
-            // Tenta recuperar nome se perdeu a ref
-            let nome = i.nome_ref;
-            if(!nome && availableInsumos.length > 0) {
-                const ins = availableInsumos.find(ai => ai.ID == i.id_insumo);
-                if(ins) nome = `${ins.Nome} (${ins.Unidade})`;
-            }
-            div.innerHTML += `
-            <div class="flex justify-between items-center bg-white p-2 border rounded text-xs">
-                <span>${nome || 'Insumo ID ' + i.id_insumo}</span>
-                <div class="flex items-center gap-2">
-                    <span class="bg-gray-100 px-2 py-1 rounded font-bold">${i.qtd}</span>
-                    <button onclick="removeInsumo('${i.id_insumo}')" class="text-red-500"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>`;
-        });
-    }
+    // Init
+    window.onload = () => switchTab('dash');
   </script>
 </body>
 
