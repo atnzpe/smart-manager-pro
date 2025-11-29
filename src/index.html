@@ -147,12 +147,27 @@
   </div>
 
   <div id="view-servicos-auth" class="hidden min-h-screen bg-white p-6 fade-in flex flex-col justify-center">
-    <button onclick="router('home')" class="absolute top-6 left-6 text-gray-500"><i class="fas fa-arrow-left"></i> Voltar</button>
     <div class="max-w-sm mx-auto w-full text-center">
-      <h2 class="text-2xl font-bold mb-6">Seus Dados</h2>
-      <input id="srv-nome" type="text" placeholder="Nome" class="w-full p-3 border rounded mb-3">
-      <input id="srv-tel" type="tel" placeholder="WhatsApp" class="w-full p-3 border rounded mb-3">
-      <button onclick="goToAgenda()" class="w-full bg-primary text-white py-3 rounded font-bold">Continuar</button>
+        <div class="w-20 h-20 bg-violet-50 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl text-primary shadow-sm border border-violet-100">
+            <i class="far fa-smile"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800">Vamos começar!</h2>
+        <p class="text-gray-400 text-sm mt-1 mb-6">Identifique-se para acessar a agenda.</p>
+        
+        <div class="space-y-4 text-left">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="far fa-user text-gray-300"></i></div>
+                <input id="srv-nome" type="text" placeholder="Digite seu nome..." class="w-full pl-11 p-4 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition text-gray-700 placeholder-gray-300">
+            </div>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="fab fa-whatsapp text-gray-300"></i></div>
+                <input id="srv-tel" type="tel" placeholder="Ex: (DDD) 9 Seu Número" class="w-full pl-11 p-4 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition text-gray-700 placeholder-gray-300">
+            </div>
+            
+            <button onclick="goToAgenda()" class="w-full bg-primary text-white py-4 rounded-xl font-bold shadow-lg shadow-violet-200 hover:bg-violet-600 hover:shadow-violet-300 transform active:scale-95 transition-all mt-6 flex items-center justify-center gap-3 text-lg">
+                <span>Acessar Agenda</span> <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
     </div>
   </div>
 
@@ -242,6 +257,7 @@
   </div>
 
   <script>
+    // @ts-check
     // Estado Global
     const state = { cartProd: [], cartServ: [], catalogo: {}, userServ: {}, selectedSlot: null, selectedDate: null, currentUser: null, kdsData: {pedidos:[], agendamentos:[]} };
 
@@ -399,7 +415,14 @@
         google.script.run.withSuccessHandler((res) => {
             loadKDS();
             toggleLoading(false);
-            if (res.whatsappLink) window.open(res.whatsappLink, '_blank');
+            
+            // --- SUBSTITUIÇÃO AQUI ---
+            // ANTIGO: if (res.whatsappLink) window.open(res.whatsappLink, '_blank');
+            if (res.whatsappLink) {
+                openWhatsApp(res.whatsappLink);
+            }
+            // -------------------------
+
         }).updateStatusKDS(type, id, status, state.currentUser);
     }
 
@@ -452,18 +475,36 @@
     }
 
     function enviarPedido() {
-        const n = document.getElementById('chk-nome').value, t = document.getElementById('chk-tel').value, pg = document.getElementById('chk-pgto').value, tx = Number(document.getElementById('chk-regiao').value), end = document.getElementById('chk-end').value;
+        const n = document.getElementById('chk-nome').value;
+        const t = document.getElementById('chk-tel').value;
+        const pg = document.getElementById('chk-pgto').value;
+        const tx = Number(document.getElementById('chk-regiao').value);
+        const end = document.getElementById('chk-end').value;
+
         if (!n || !t || !pg) return alert("Preencha todos os campos obrigatórios.");
         if (tx > 0 && !end) return alert("Endereço é obrigatório para entrega.");
         
         toggleLoading(true);
         const v = calcTotal();
-        const p = { cliente: { nome: n, telefone: t, endereco: end }, itens: state.cartProd, subtotal: v.sub, taxaEntrega: v.taxa, total: v.total, pagamento: pg, whatsappLoja: state.catalogo.config.whatsappLoja };
+        const p = { 
+            cliente: { nome: n, telefone: t, endereco: end }, 
+            itens: state.cartProd, 
+            subtotal: v.sub, 
+            taxaEntrega: v.taxa, 
+            total: v.total, 
+            pagamento: pg, 
+            whatsappLoja: state.catalogo.config.whatsappLoja 
+        };
         
         google.script.run.withSuccessHandler(r => {
             if (r.success) {
                 const msg = `*PEDIDO #${r.id}*\n👤 ${n}\n📱 ${t}\n💵 Total: R$ ${v.total.toFixed(2)}\n💳 ${pg}`;
-                window.open(`https://wa.me/${r.whatsappLoja}?text=${encodeURIComponent(msg)}`, '_blank');
+                
+                // --- SUBSTITUIÇÃO AQUI ---
+                // ANTIGO: window.open(...)
+                openWhatsApp(`https://wa.me/${r.whatsappLoja}?text=${encodeURIComponent(msg)}`);
+                // -------------------------
+
                 setTimeout(() => window.top.location.reload(), 2000);
             } else {
                 alert(r.message); toggleLoading(false);
@@ -587,15 +628,22 @@
         const fill = (i, l) => {
             const el = document.getElementById(i);
             if(el) {
-                el.innerHTML = '<option value="">Selecione...</option>';
+                // Se for a região (entrega), mantemos a opção Retirar (Valor 0)
+                if (i === 'chk-regiao') {
+                    el.innerHTML = '<option value="0">Retirar (Grátis)</option>';
+                } else {
+                    el.innerHTML = '<option value="">Selecione...</option>';
+                }
+                
                 l?.forEach(x => {
                     const o = document.createElement('option');
                     o.value = x.Valor_Taxa || x.Nome;
-                    o.innerText = x.Nome;
+                    o.innerText = x.Nome + (x.Valor_Taxa ? ` (R$ ${x.Valor_Taxa})` : '');
                     el.appendChild(o);
                 });
             }
         };
+        
         if (state.catalogo.pagamentos) {
             fill('chk-pgto', state.catalogo.pagamentos);
             fill('serv-pgto', state.catalogo.pagamentos);
@@ -603,6 +651,15 @@
         if (state.catalogo.taxasEntrega) {
             fill('chk-regiao', state.catalogo.taxasEntrega);
         }
+    }
+
+    function openWhatsApp(url) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
   </script>
 </body>
